@@ -1,0 +1,58 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow: hidden;
+}
+
+.experience {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+}
+
+.credits {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  color: #ffffff;
+  text-align: right;
+  font-family: "Roboto", sans-serif;
+}
+#css {
+  cursor: pointer;
+}
+.credits a {
+  color: inherit;
+}
+
+#drawing-canvas {
+  background-color: #ffffff;
+  display: none;
+}
+
+iframe {
+  overflow: auto;
+}
+
+.css3d {
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
+  opacity: 0;
+}
+.iframe-wrapper {
+  /* width: 1260px; */
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  /* transform: scale(0.44); */
+}
+
+.iframe-wrapper iframe {
+  /* width: 100%;
+  height: 100%; */
+}
