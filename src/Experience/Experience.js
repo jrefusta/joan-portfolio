@@ -23,10 +23,11 @@ export default class Experience {
     Experience.instance = this;
 
     // Options
-    this.targetElement = _options.targetElement;
+    this.webglElement = _options.webglElement;
+    this.cssElement = _options.cssElement;
 
-    if (!this.targetElement) {
-      console.warn("Missing 'targetElement' property");
+    if (!this.webglElement) {
+      console.warn("Missing 'webglElement' property");
       return;
     }
 
@@ -37,7 +38,6 @@ export default class Experience {
     this.setDebug();
     this.setScene();
     this.setCamera();
-    this.setLights();
     this.setRenderer();
     this.setResources();
     this.setWorld();
@@ -71,7 +71,7 @@ export default class Experience {
     this.config.pixelRatio = Math.min(Math.max(window.devicePixelRatio, 1), 2);
 
     // Width and height
-    const boundings = this.targetElement.getBoundingClientRect();
+    const boundings = this.webglElement.getBoundingClientRect();
     this.config.width = boundings.width;
     this.config.height = boundings.height || window.innerHeight;
     this.config.smallestSide = Math.min(this.config.width, this.config.height);
@@ -97,21 +97,15 @@ export default class Experience {
 
   setScene() {
     this.scene = new THREE.Scene();
+    this.cssScene = new THREE.Scene();
   }
 
   setCamera() {
     this.camera = new Camera();
   }
 
-  setLights() {
-    const light = new THREE.AmbientLight(0xffffff);
-    this.scene.add(light);
-  }
-
   setRenderer() {
     this.renderer = new Renderer({ rendererInstance: this.rendererInstance });
-
-    this.targetElement.appendChild(this.renderer.instance.domElement);
   }
 
   setResources() {
@@ -144,7 +138,7 @@ export default class Experience {
 
   resize() {
     // Config
-    const boundings = this.targetElement.getBoundingClientRect();
+    const boundings = this.webglElement.getBoundingClientRect();
     this.config.width = boundings.width;
     this.config.height = boundings.height;
     this.config.smallestSide = Math.min(this.config.width, this.config.height);

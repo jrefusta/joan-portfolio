@@ -10,7 +10,7 @@ export default class Camera {
     this.debug = this.experience.debug;
     this.time = this.experience.time;
     this.sizes = this.experience.sizes;
-    this.targetElement = this.experience.targetElement;
+    this.webglElement = this.experience.webglElement;
     this.scene = this.experience.scene;
 
     // Set up
@@ -48,7 +48,7 @@ export default class Camera {
     this.modes.debug.instance.position.set(-15, 15, 15);
     this.modes.debug.orbitControls = new OrbitControls(
       this.modes.debug.instance,
-      this.targetElement
+      this.webglElement
     );
     this.modes.debug.orbitControls.enabled = false;
     this.modes.debug.orbitControls.screenSpacePanning = true;

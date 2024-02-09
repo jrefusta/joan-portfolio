@@ -1,15 +1,12 @@
 import * as THREE from "three";
 import Experience from "./Experience.js";
-import {
-  CSS3DObject,
-  CSS3DRenderer,
-} from "three/examples/jsm/renderers/CSS3DRenderer.js";
+import { CSS3DObject } from "three/examples/jsm/renderers/CSS3DRenderer.js";
 
 export default class Whiteboard {
   constructor() {
-    // this.cssRenderer = new CSS3DRenderer();
-    this.cssScene = new THREE.Scene();
     this.experience = new Experience();
+    this.webglElement = this.experience.webglElement;
+    this.cssScene = this.experience.cssScene;
     this.resources = this.experience.resources;
     this.debug = this.experience.debug;
     this.scene = this.experience.scene;
@@ -22,71 +19,35 @@ export default class Whiteboard {
     this.raycaster = new THREE.Raycaster();
     this.drawColor = "black";
     this.positionsToDraw = [];
+    this.screenSize = new THREE.Vector2(1280, 1024);
     this.setWhiteboard();
   }
 
   setWhiteboard() {
-    /* const container = document.createElement("div");
-    container.style.width = "1920px";
-    container.style.height = "1080px";
+    const container = document.createElement("div");
+    container.style.width = this.screenSize.width + "px";
+    container.style.height = this.screenSize.height + "px";
     container.style.opacity = "1";
+
     const iframe = document.createElement("iframe");
-    iframe.onload = () => {
-      if (iframe.contentWindow) {
-        window.addEventListener("message", (event) => {
-          var evt = new CustomEvent(event.data.type, {
-            bubbles: true,
-            cancelable: false,
-          });
 
-          // @ts-ignore
-          evt.inComputer = true;
-          if (event.data.type === "mousemove") {
-            var clRect = iframe.getBoundingClientRect();
-            const { top, left, width, height } = clRect;
-            const widthRatio = width / IFRAME_SIZE.w;
-            const heightRatio = height / IFRAME_SIZE.h;
-
-            // @ts-ignore
-            evt.clientX = Math.round(event.data.clientX * widthRatio + left);
-            //@ts-ignore
-            evt.clientY = Math.round(event.data.clientY * heightRatio + top);
-          } else if (event.data.type === "keydown") {
-            // @ts-ignore
-            evt.key = event.data.key;
-          } else if (event.data.type === "keyup") {
-            // @ts-ignore
-            evt.key = event.data.key;
-          }
-
-          iframe.dispatchEvent(evt);
-        });
-      }
-    };
     iframe.src = "https://cobayaunchained.com/";
-
-    iframe.style.width = "1920px";
-    iframe.style.height = "1080px";
+    iframe.style.width = this.screenSize.width + "px";
+    iframe.style.height = this.screenSize.height + "px";
     iframe.style.padding = 32 + "px";
-    iframe.style.boxSizing = "border-box";
 
     iframe.style.opacity = "1";
-    iframe.className = "jitter";
+    iframe.style.transparent = true;
     iframe.id = "computer-screen";
-    iframe.name = "TEST";
+    iframe.style.boxSizing = "border-box";
     iframe.title = "HeffernanOS";
 
     container.appendChild(iframe);
     // Add iframe to container
     const css3dobject = new CSS3DObject(container);
-    css3dobject.scale.set(0.002, 0.002, 0.002);
-    //this.cssScene.add(css3dobject);
 
-    this.cssRenderer = new CSS3DRenderer();
-    this.cssRenderer.setSize(window.innerWidth, window.innerHeight);
-    this.cssRenderer.domElement.style.position = "absolute";
-    this.cssRenderer.domElement.style.top = 0;
-    // document.querySelector("#css")?.appendChild(this.cssRenderer.domElement);
+    css3dobject.scale.set(0.002, 0.002, 0.002);
+    this.cssScene.add(css3dobject);
 
     const material = new THREE.MeshLambertMaterial();
     material.side = THREE.DoubleSide;
@@ -96,7 +57,10 @@ export default class Whiteboard {
     material.blending = THREE.NoBlending;
 
     // Create plane geometry
-    const geometry = new THREE.PlaneGeometry(0.8, 0.6);
+    const geometry = new THREE.PlaneGeometry(
+      this.screenSize.width,
+      this.screenSize.height
+    );
 
     // Create the GL plane mesh
     const mesh = new THREE.Mesh(geometry, material);
@@ -104,9 +68,9 @@ export default class Whiteboard {
     // Copy the position, rotation and scale of the CSS plane to the GL plane
     mesh.position.copy(css3dobject.position);
     mesh.rotation.copy(css3dobject.rotation);
-    mesh.scale.copy(css3dobject.scale); */
+    mesh.scale.copy(css3dobject.scale);
     // Add to gl scene
-    //this.scene.add(mesh);
+    this.scene.add(mesh);
 
     this.whiteboardMaterial = new THREE.MeshBasicMaterial();
     const whiteboardGeom = new THREE.PlaneGeometry(2.6, 1.82);
@@ -165,7 +129,6 @@ export default class Whiteboard {
       true
     );
     this.objectRaycasted = intersects.length > 0 ? intersects[0] : null;
-    // this.cssRenderer.render(this.cssScene, this.camera.instance);
   }
 
   draw(x, y) {
@@ -200,6 +163,16 @@ export default class Whiteboard {
   onMouseMove = (event) => {
     this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    if (
+      this.objectRaycasted &&
+      this.objectRaycasted.object &&
+      this.objectRaycasted.object.name == "whiteboard"
+    ) {
+      this.webglElement.style.pointerEvents = "none";
+    } else {
+      this.webglElement.style.pointerEvents = "auto";
+    }
+
     if (
       this.drawing &&
       this.objectRaycasted &&

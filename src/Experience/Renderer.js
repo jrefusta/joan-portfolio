@@ -2,10 +2,13 @@ import * as THREE from "three";
 import Experience from "./Experience.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { CSS3DRenderer } from "three/examples/jsm/renderers/CSS3DRenderer.js";
 
 export default class Renderer {
   constructor(_options = {}) {
     this.experience = new Experience();
+    this.webglElement = this.experience.webglElement;
+    this.cssElement = this.experience.cssElement;
     this.config = this.experience.config;
     this.debug = this.experience.debug;
     this.stats = this.experience.stats;
@@ -13,11 +16,11 @@ export default class Renderer {
     this.sizes = this.experience.sizes;
     this.scene = this.experience.scene;
     this.camera = this.experience.camera;
-
+    this.cssScene = this.experience.cssScene;
     this.usePostprocess = false;
 
     this.setInstance();
-    this.setPostProcess();
+    //this.setPostProcess();
   }
 
   setInstance() {
@@ -41,40 +44,41 @@ export default class Renderer {
 
     // this.instance.physicallyCorrectLights = true
     // this.instance.gammaOutPut = true
-    this.instance.outputEncoding = THREE.sRGBEncoding;
+    this.instance.outputColorSpace = THREE.SRGBColorSpace;
+    this.webglElement.appendChild(this.instance.domElement);
     // this.instance.shadowMap.type = THREE.PCFSoftShadowMap
     // this.instance.shadowMap.enabled = false
     // this.instance.toneMapping = THREE.ReinhardToneMapping
     // this.instance.toneMappingExposure = 1.3
+    this.cssInstance = new CSS3DRenderer();
+    this.cssInstance.setSize(this.sizes.width, this.sizes.height);
+    this.cssInstance.domElement.style.position = "absolute";
+    this.cssInstance.domElement.style.top = "0px";
 
+    this.cssElement.appendChild(this.cssInstance.domElement);
+    // Add stats panel
     this.context = this.instance.getContext();
 
-    // Add stats panel
     if (this.stats) {
       this.stats.setRenderPanel(this.context);
     }
   }
 
-  setPostProcess() {
+  /*setPostProcess() {
     this.postProcess = {};
 
-    /**
-     * Render pass
-     */
+    
     this.postProcess.renderPass = new RenderPass(
       this.scene,
       this.camera.instance
     );
 
-    /**
-     * Effect composer
-     */
     const RenderTargetClass =
       this.config.pixelRatio >= 2
         ? THREE.WebGLRenderTarget
         : THREE.WebGLMultisampleRenderTarget;
     // const RenderTargetClass = THREE.WebGLRenderTarget
-    this.renderTarget = new RenderTargetClass(
+    this.renderTarget = new THREE.RenderTarget(
       this.config.width,
       this.config.height,
       {
@@ -82,7 +86,7 @@ export default class Renderer {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
         format: THREE.RGBFormat,
-        encoding: THREE.sRGBEncoding,
+        encoding: THREE.SRGBColorSpace,
       }
     );
     this.postProcess.composer = new EffectComposer(
@@ -93,16 +97,17 @@ export default class Renderer {
     this.postProcess.composer.setPixelRatio(this.config.pixelRatio);
 
     this.postProcess.composer.addPass(this.postProcess.renderPass);
-  }
+  }*/
 
   resize() {
     // Instance
     this.instance.setSize(this.config.width, this.config.height);
     this.instance.setPixelRatio(this.config.pixelRatio);
+    this.cssInstance.setSize(this.config.width, this.config.height);
 
     // Post process
-    this.postProcess.composer.setSize(this.config.width, this.config.height);
-    this.postProcess.composer.setPixelRatio(this.config.pixelRatio);
+    //this.postProcess.composer.setSize(this.config.width, this.config.height);
+    //this.postProcess.composer.setPixelRatio(this.config.pixelRatio);
   }
 
   update() {
@@ -114,6 +119,7 @@ export default class Renderer {
       this.postProcess.composer.render();
     } else {
       this.instance.render(this.scene, this.camera.instance);
+      this.cssInstance.render(this.cssScene, this.camera.instance);
     }
 
     if (this.stats) {

@@ -5,7 +5,7 @@ import normalizeWheel from "normalize-wheel";
 export default class Navigation {
   constructor() {
     this.experience = new Experience();
-    this.targetElement = this.experience.targetElement;
+    this.webglElement = this.experience.webglElement;
     this.camera = this.experience.camera;
     this.config = this.experience.config;
     this.time = this.experience.time;
@@ -109,7 +109,7 @@ export default class Navigation {
       window.removeEventListener("mousemove", this.view.onMouseMove);
     };
 
-    this.targetElement.addEventListener("mousedown", this.view.onMouseDown);
+    this.webglElement.addEventListener("mousedown", this.view.onMouseDown);
 
     /**
      * Touch events

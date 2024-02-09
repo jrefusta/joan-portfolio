@@ -29,15 +29,14 @@ export default class CoffeeSteam {
     this.model.mesh = this.resources.items.roomModel.scene; //.children[0];
 
     this.model.bakedDayTexture = this.resources.items.bakedDayTexture;
-    this.model.bakedDayTexture.encoding = THREE.sRGBEncoding;
     this.model.bakedDayTexture.flipY = false;
     /* 
     this.model.bakedNightTexture = this.resources.items.bakedNightTexture;
-    this.model.bakedNightTexture.encoding = THREE.sRGBEncoding;
+    this.model.bakedNightTexture.encoding = THREE.SRGBColorSpace;
     this.model.bakedNightTexture.flipY = false;
 
     this.model.bakedNeutralTexture = this.resources.items.bakedNeutralTexture;
-    this.model.bakedNeutralTexture.encoding = THREE.sRGBEncoding;
+    this.model.bakedNeutralTexture.encoding = THREE.SRGBColorSpace;
     this.model.bakedNeutralTexture.flipY = false;
 
     this.model.lightMapTexture = this.resources.items.lightMapTexture;

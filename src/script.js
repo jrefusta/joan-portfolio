@@ -1,7 +1,7 @@
-import './style.css'
-import Experience from './Experience/Experience.js'
+import "./style.css";
+import Experience from "./Experience/Experience.js";
 
 window.experience = new Experience({
-    targetElement: document.querySelector('.experience')
-})
-
+  webglElement: document.querySelector("#webgl"),
+  cssElement: document.querySelector("#css"),
+});
