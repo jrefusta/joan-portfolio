@@ -7,6 +7,8 @@ export default class Whiteboard {
     this.experience = new Experience();
     this.webglElement = this.experience.webglElement;
     this.cssScene = this.experience.cssScene;
+    this.cssScene1 = this.experience.cssScene1;
+    this.cssScene2 = this.experience.cssScene2;
     this.resources = this.experience.resources;
     this.debug = this.experience.debug;
     this.scene = this.experience.scene;
@@ -19,59 +21,10 @@ export default class Whiteboard {
     this.raycaster = new THREE.Raycaster();
     this.drawColor = "black";
     this.positionsToDraw = [];
-    this.screenSize = new THREE.Vector2(1280, 1024);
     this.setWhiteboard();
   }
 
   setWhiteboard() {
-    const container = document.createElement("div");
-    container.style.width = this.screenSize.width + "px";
-    container.style.height = this.screenSize.height + "px";
-    container.style.opacity = "1";
-
-    const iframe = document.createElement("iframe");
-
-    iframe.src = "https://cobayaunchained.com/";
-    iframe.style.width = this.screenSize.width + "px";
-    iframe.style.height = this.screenSize.height + "px";
-    iframe.style.padding = 32 + "px";
-
-    iframe.style.opacity = "1";
-    iframe.style.transparent = true;
-    iframe.id = "computer-screen";
-    iframe.style.boxSizing = "border-box";
-    iframe.title = "HeffernanOS";
-
-    container.appendChild(iframe);
-    // Add iframe to container
-    const css3dobject = new CSS3DObject(container);
-
-    css3dobject.scale.set(0.002, 0.002, 0.002);
-    this.cssScene.add(css3dobject);
-
-    const material = new THREE.MeshLambertMaterial();
-    material.side = THREE.DoubleSide;
-    material.opacity = 0;
-    material.transparent = true;
-    // NoBlending allows the GL plane to occlude the CSS plane
-    material.blending = THREE.NoBlending;
-
-    // Create plane geometry
-    const geometry = new THREE.PlaneGeometry(
-      this.screenSize.width,
-      this.screenSize.height
-    );
-
-    // Create the GL plane mesh
-    const mesh = new THREE.Mesh(geometry, material);
-
-    // Copy the position, rotation and scale of the CSS plane to the GL plane
-    mesh.position.copy(css3dobject.position);
-    mesh.rotation.copy(css3dobject.rotation);
-    mesh.scale.copy(css3dobject.scale);
-    // Add to gl scene
-    this.scene.add(mesh);
-
     this.whiteboardMaterial = new THREE.MeshBasicMaterial();
     const whiteboardGeom = new THREE.PlaneGeometry(2.6, 1.82);
     whiteboardGeom.computeBoundingBox();

@@ -49,11 +49,11 @@ export default class Resources extends EventEmitter {
 
     // Basis images
     const basisLoader = new KTX2Loader();
-    basisLoader.setTranscoderPath("basis");
+    basisLoader.setTranscoderPath("basis/");
     basisLoader.detectSupport(this.renderer);
 
     this.loaders.push({
-      extensions: ["basis"],
+      extensions: ["ktx2"],
       action: (_resource) => {
         basisLoader.load(_resource.source, (_data) => {
           this.fileLoadEnd(_resource, _data);
@@ -121,8 +121,9 @@ export default class Resources extends EventEmitter {
   load(_resources = []) {
     for (const _resource of _resources) {
       this.toLoad++;
-      const extensionMatch = _resource.source.match(/\.([a-z]+)$/);
+      const extensionMatch = _resource.source.match(/\.([a-zA-Z0-9]+)$/);
 
+      console.log(_resource);
       if (typeof extensionMatch[1] !== "undefined") {
         const extension = extensionMatch[1];
         const loader = this.loaders.find((_loader) =>

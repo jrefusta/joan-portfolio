@@ -58,13 +58,22 @@ export default [
 
       {
         name: "bakedDayTexture",
-        source: "/assets/baked1.png",
+        source: "/assets/baked1.ktx2",
         type: "texture",
       },
-      /* { name: 'bakedNightTexture', source: '/assets/bakedNight.jpg', type: 'texture' },
-            { name: 'bakedNeutralTexture', source: '/assets/bakedNeutral.jpg', type: 'texture' },
-            { name: 'lightMapTexture', source: '/assets/lightMap.jpg', type: 'texture' }, */
       { name: "roomModel", source: "/assets/room.glb" },
+      {
+        name: "bakedDayTexture2",
+        source: "/assets/baked2.ktx2",
+        type: "texture",
+      },
+      { name: "roomModel2", source: "/assets/room2.glb" },
+      {
+        name: "bakedDayTexture3",
+        source: "/assets/baked3.ktx2",
+        type: "texture",
+      },
+      { name: "roomModel3", source: "/assets/room3.glb" },
     ],
   },
 ];

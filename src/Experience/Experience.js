@@ -25,6 +25,8 @@ export default class Experience {
     // Options
     this.webglElement = _options.webglElement;
     this.cssElement = _options.cssElement;
+    this.cssElement1 = _options.cssElement1;
+    this.cssElement2 = _options.cssElement2;
 
     if (!this.webglElement) {
       console.warn("Missing 'webglElement' property");
@@ -98,6 +100,8 @@ export default class Experience {
   setScene() {
     this.scene = new THREE.Scene();
     this.cssScene = new THREE.Scene();
+    this.cssScene1 = new THREE.Scene();
+    this.cssScene2 = new THREE.Scene();
   }
 
   setCamera() {

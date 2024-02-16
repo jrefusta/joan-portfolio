@@ -9,6 +9,8 @@ export default class Renderer {
     this.experience = new Experience();
     this.webglElement = this.experience.webglElement;
     this.cssElement = this.experience.cssElement;
+    this.cssElement1 = this.experience.cssElement1;
+    this.cssElement2 = this.experience.cssElement2;
     this.config = this.experience.config;
     this.debug = this.experience.debug;
     this.stats = this.experience.stats;
@@ -17,6 +19,8 @@ export default class Renderer {
     this.scene = this.experience.scene;
     this.camera = this.experience.camera;
     this.cssScene = this.experience.cssScene;
+    this.cssScene1 = this.experience.cssScene1;
+    this.cssScene2 = this.experience.cssScene2;
     this.usePostprocess = false;
 
     this.setInstance();
@@ -54,8 +58,19 @@ export default class Renderer {
     this.cssInstance.setSize(this.sizes.width, this.sizes.height);
     this.cssInstance.domElement.style.position = "absolute";
     this.cssInstance.domElement.style.top = "0px";
+    this.cssInstance1 = new CSS3DRenderer();
+    this.cssInstance1.setSize(this.sizes.width, this.sizes.height);
+    this.cssInstance1.domElement.style.position = "absolute";
+    this.cssInstance1.domElement.style.top = "0px";
+
+    this.cssInstance2 = new CSS3DRenderer();
+    this.cssInstance2.setSize(this.sizes.width, this.sizes.height);
+    this.cssInstance2.domElement.style.position = "absolute";
+    this.cssInstance2.domElement.style.top = "0px";
 
     this.cssElement.appendChild(this.cssInstance.domElement);
+    this.cssElement1.appendChild(this.cssInstance1.domElement);
+    this.cssElement2.appendChild(this.cssInstance2.domElement);
     // Add stats panel
     this.context = this.instance.getContext();
 
@@ -104,6 +119,8 @@ export default class Renderer {
     this.instance.setSize(this.config.width, this.config.height);
     this.instance.setPixelRatio(this.config.pixelRatio);
     this.cssInstance.setSize(this.config.width, this.config.height);
+    this.cssInstance1.setSize(this.config.width, this.config.height);
+    this.cssInstance2.setSize(this.config.width, this.config.height);
 
     // Post process
     //this.postProcess.composer.setSize(this.config.width, this.config.height);
@@ -120,6 +137,8 @@ export default class Renderer {
     } else {
       this.instance.render(this.scene, this.camera.instance);
       this.cssInstance.render(this.cssScene, this.camera.instance);
+      this.cssInstance1.render(this.cssScene1, this.camera.instance);
+      this.cssInstance2.render(this.cssScene2, this.camera.instance);
     }
 
     if (this.stats) {

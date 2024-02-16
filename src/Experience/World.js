@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import Experience from "./Experience.js";
 import Baked from "./Baked.js";
+import Baked2 from "./Baked2.js";
+import Baked3 from "./Baked3.js";
 import GoogleLeds from "./GoogleLeds.js";
 import LoupedeckButtons from "./LoupedeckButtons.js";
 import CoffeeSteam from "./CoffeeSteam.js";
@@ -10,6 +12,9 @@ import BouncingLogo from "./BouncingLogo.js";
 import Screen from "./Screen.js";
 import Whiteboard from "./Whiteboard.js";
 import Carpet from "./Carpet.js";
+import ArcadeScreen from "./ArcadeScreen.js";
+import LeftMonitorScreen from "./LeftMonitorScreen.js";
+import RightMonitorScreen from "./RightMonitorScreen.js";
 
 export default class World {
   constructor(_options) {
@@ -21,8 +26,13 @@ export default class World {
     this.resources.on("groupEnd", (_group) => {
       if (_group.name === "base") {
         this.setBaked();
+        this.setBaked2();
+        this.setBaked3();
         this.setWhiteboard();
         this.setCarpet();
+        this.setArcadeScreen();
+        this.setLeftMonitorScreen();
+        this.setRightMonitorScreen();
         //this.setGoogleLeds()
         //this.setLoupedeckButtons()
         //this.setCoffeeSteam()
@@ -36,6 +46,14 @@ export default class World {
 
   setBaked() {
     this.baked = new Baked();
+  }
+
+  setBaked2() {
+    this.baked2 = new Baked2();
+  }
+
+  setBaked3() {
+    this.baked3 = new Baked3();
   }
 
   setGoogleLeds() {
@@ -68,6 +86,15 @@ export default class World {
 
   setCarpet() {
     this.carpet = new Carpet();
+  }
+  setArcadeScreen() {
+    this.arcadeScreen = new ArcadeScreen();
+  }
+  setLeftMonitorScreen() {
+    this.leftMonitorScreen = new LeftMonitorScreen();
+  }
+  setRightMonitorScreen() {
+    this.rightMonitorScreen = new RightMonitorScreen();
   }
 
   setScreens() {

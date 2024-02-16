@@ -4,7 +4,7 @@ import Experience from "./Experience.js";
 import vertexShader from "./shaders/baked/vertex.glsl";
 import fragmentShader from "./shaders/baked/fragment.glsl";
 
-export default class CoffeeSteam {
+export default class Baked {
   constructor() {
     this.experience = new Experience();
     this.resources = this.experience.resources;
@@ -30,6 +30,7 @@ export default class CoffeeSteam {
 
     this.model.bakedDayTexture = this.resources.items.bakedDayTexture;
     this.model.bakedDayTexture.flipY = false;
+    this.model.bakedDayTexture.encoding = THREE.SRGBColorSpace;
     /* 
     this.model.bakedNightTexture = this.resources.items.bakedNightTexture;
     this.model.bakedNightTexture.encoding = THREE.SRGBColorSpace;

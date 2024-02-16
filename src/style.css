@@ -19,6 +19,16 @@ body {
   cursor: pointer;
 }
 
+#css1 {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+#css2 {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
 #drawing-canvas {
   background-color: #ffffff;
   display: none;
