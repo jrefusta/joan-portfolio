@@ -26,10 +26,10 @@ export default class LeftMonitorScreen {
 
     const iframe1 = document.createElement("iframe");
 
-    iframe1.src = "https://www.bruno-simon.com/";
+    iframe1.src = "https://www.cobayaunchained.com/";
     iframe1.style.width = this.screenMonitorSize.width + "px";
     iframe1.style.height = this.screenMonitorSize.height + "px";
-    iframe1.style.padding = 16 + "px";
+    iframe1.style.padding = 8 + "px";
 
     iframe1.style.opacity = "1";
     iframe1.style.transparent = true;

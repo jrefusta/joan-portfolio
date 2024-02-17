@@ -99,9 +99,13 @@ export default class Experience {
 
   setScene() {
     this.scene = new THREE.Scene();
+    this.sceneRubik = new THREE.Scene();
     this.cssScene = new THREE.Scene();
     this.cssScene1 = new THREE.Scene();
     this.cssScene2 = new THREE.Scene();
+
+    const light = new THREE.AmbientLight(0xffffff);
+    this.sceneRubik.add(light);
   }
 
   setCamera() {

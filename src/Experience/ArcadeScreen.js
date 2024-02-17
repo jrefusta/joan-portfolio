@@ -23,7 +23,7 @@ export default class ArcadeScreen {
 
     const iframe = document.createElement("iframe");
 
-    iframe.src = "https://www.bruno-simon.com/";
+    iframe.src = "https://www.cobayaunchained.com/";
     iframe.style.width = this.screenSize.width + "px";
     iframe.style.height = this.screenSize.height + "px";
     iframe.style.padding = 32 + "px";

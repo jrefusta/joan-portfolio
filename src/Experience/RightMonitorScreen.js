@@ -33,10 +33,10 @@ export default class RightMonitorScreen {
 
     const iframe2 = document.createElement("iframe");
 
-    iframe2.src = "https://www.bruno-simon.com/";
+    iframe2.src = "https://www.cobayaunchained.com/";
     iframe2.style.width = this.screenMonitorSize.width + "px";
     iframe2.style.height = this.screenMonitorSize.height + "px";
-    iframe2.style.padding = 32 + "px";
+    iframe2.style.padding = 8 + "px";
 
     iframe2.style.opacity = "1";
     iframe2.style.transparent = true;

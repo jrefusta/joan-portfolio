@@ -15,12 +15,14 @@ import Carpet from "./Carpet.js";
 import ArcadeScreen from "./ArcadeScreen.js";
 import LeftMonitorScreen from "./LeftMonitorScreen.js";
 import RightMonitorScreen from "./RightMonitorScreen.js";
+import { RubiksCube } from "./RubiksCube.js";
 
 export default class World {
   constructor(_options) {
     this.experience = new Experience();
     this.config = this.experience.config;
     this.scene = this.experience.scene;
+    this.sceneRubik = this.experience.sceneRubik;
     this.resources = this.experience.resources;
 
     this.resources.on("groupEnd", (_group) => {
@@ -33,6 +35,7 @@ export default class World {
         this.setArcadeScreen();
         this.setLeftMonitorScreen();
         this.setRightMonitorScreen();
+        this.setRubiksCube();
         //this.setGoogleLeds()
         //this.setLoupedeckButtons()
         //this.setCoffeeSteam()
@@ -54,6 +57,17 @@ export default class World {
 
   setBaked3() {
     this.baked3 = new Baked3();
+  }
+
+  setRubiksCube() {
+    this.rubiksCube = new RubiksCube(
+      //new THREE.Vector3(-0.62668, 1.52897, -3.85849),
+      new THREE.Vector3(-0.67868, 1.499, -3.92849),
+      //new THREE.Vector3(0, 0, 0),
+      this.sceneRubik,
+      this.experience.camera.instance
+    );
+    this.rubiksCube.newRubik.scale.set(0.021432, 0.021432, 0.021432);
   }
 
   setGoogleLeds() {
@@ -118,6 +132,7 @@ export default class World {
     if (this.coffeeSteam) this.coffeeSteam.update();
 
     if (this.topChair) this.topChair.update();
+    if (this.rubiksCube) this.rubiksCube.update();
 
     if (this.bouncingLogo) this.bouncingLogo.update();
     if (this.whiteboard) this.whiteboard.update();

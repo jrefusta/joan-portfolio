@@ -17,6 +17,7 @@ export default class Renderer {
     this.time = this.experience.time;
     this.sizes = this.experience.sizes;
     this.scene = this.experience.scene;
+    this.sceneRubik = this.experience.sceneRubik;
     this.camera = this.experience.camera;
     this.cssScene = this.experience.cssScene;
     this.cssScene1 = this.experience.cssScene1;
@@ -136,9 +137,12 @@ export default class Renderer {
       this.postProcess.composer.render();
     } else {
       this.instance.render(this.scene, this.camera.instance);
+      this.instance.autoClear = false;
+      this.instance.render(this.sceneRubik, this.camera.instance);
       this.cssInstance.render(this.cssScene, this.camera.instance);
       this.cssInstance1.render(this.cssScene1, this.camera.instance);
       this.cssInstance2.render(this.cssScene2, this.camera.instance);
+      this.instance.autoClear = true;
     }
 
     if (this.stats) {

@@ -74,6 +74,7 @@ export default [
         type: "texture",
       },
       { name: "roomModel3", source: "/assets/room3.glb" },
+      { name: "rubiksCube", source: "/assets/Rubik.glb" },
     ],
   },
 ];
