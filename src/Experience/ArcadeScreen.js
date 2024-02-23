@@ -39,7 +39,6 @@ export default class ArcadeScreen {
       window.addEventListener("keydown", (event) => {
         this.camera.instance.lookAt(new THREE.Vector3(0, 0, 0));
         this.camera.instance.updateProjectionMatrix();
-        console.log("asadsdasasd");
         this.iframeWindow.postMessage(
           { type: "keyDownParent", key: event.key },
           "*"

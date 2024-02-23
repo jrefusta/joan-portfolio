@@ -123,7 +123,6 @@ export default class Resources extends EventEmitter {
       this.toLoad++;
       const extensionMatch = _resource.source.match(/\.([a-zA-Z0-9]+)$/);
 
-      console.log(_resource);
       if (typeof extensionMatch[1] !== "undefined") {
         const extension = extensionMatch[1];
         const loader = this.loaders.find((_loader) =>
