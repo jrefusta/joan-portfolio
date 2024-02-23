@@ -15,17 +15,17 @@ body {
 }
 
 #css {
-  pointer-events: auto;
+  pointer-events: none;
   cursor: pointer;
 }
 
 #css1 {
-  pointer-events: auto;
+  pointer-events: none;
   cursor: pointer;
 }
 
 #css2 {
-  pointer-events: auto;
+  pointer-events: none;
   cursor: pointer;
 }
 

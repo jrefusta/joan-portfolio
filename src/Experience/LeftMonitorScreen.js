@@ -26,7 +26,7 @@ export default class LeftMonitorScreen {
 
     const iframe1 = document.createElement("iframe");
 
-    iframe1.src = "https://www.cobayaunchained.com/";
+    iframe1.src = "https://cobayaunchained.com/";
     iframe1.style.width = this.screenMonitorSize.width + "px";
     iframe1.style.height = this.screenMonitorSize.height + "px";
     iframe1.style.padding = 8 + "px";

@@ -93,7 +93,6 @@ export class RubiksCube {
 
   reubicateCube() {
     this.newRubik.children.forEach((child) => {
-      console.log(child);
       child.position.set(0, 0, 0);
     });
     this.position = new THREE.Vector3(0, 0, 0);

@@ -46,6 +46,7 @@ export default class Renderer {
     this.instance.setClearColor(this.clearColor, 1);
     this.instance.setSize(this.config.width, this.config.height);
     this.instance.setPixelRatio(this.config.pixelRatio);
+    this.instance.localClippingEnabled = true;
 
     // this.instance.physicallyCorrectLights = true
     // this.instance.gammaOutPut = true
@@ -63,6 +64,8 @@ export default class Renderer {
     this.cssInstance1.setSize(this.sizes.width, this.sizes.height);
     this.cssInstance1.domElement.style.position = "absolute";
     this.cssInstance1.domElement.style.top = "0px";
+    /*     this.cssElement1.style.pointerEvents = "auto";
+    this.webglElement.style.pointerEvents = "none"; */
 
     this.cssInstance2 = new CSS3DRenderer();
     this.cssInstance2.setSize(this.sizes.width, this.sizes.height);

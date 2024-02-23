@@ -23,7 +23,7 @@ export default class ArcadeScreen {
 
     const iframe = document.createElement("iframe");
 
-    iframe.src = "https://www.cobayaunchained.com/";
+    iframe.src = "http://192.168.1.72:8080/";
     iframe.style.width = this.screenSize.width + "px";
     iframe.style.height = this.screenSize.height + "px";
     iframe.style.padding = 32 + "px";
@@ -34,6 +34,24 @@ export default class ArcadeScreen {
     iframe.style.boxSizing = "border-box";
     iframe.style.background = "black";
     container.appendChild(iframe);
+    iframe.addEventListener("load", () => {
+      this.iframeWindow = iframe.contentWindow;
+      window.addEventListener("keydown", (event) => {
+        this.camera.instance.lookAt(new THREE.Vector3(0, 0, 0));
+        this.camera.instance.updateProjectionMatrix();
+        console.log("asadsdasasd");
+        this.iframeWindow.postMessage(
+          { type: "keyDownParent", key: event.key },
+          "*"
+        );
+      });
+      window.addEventListener("keyup", (event) => {
+        this.iframeWindow.postMessage(
+          { type: "keyUpParent", key: event.key },
+          "*"
+        );
+      });
+    });
 
     // Add iframe to container
     const css3dobject = new CSS3DObject(container);

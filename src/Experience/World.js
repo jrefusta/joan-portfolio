@@ -16,6 +16,7 @@ import ArcadeScreen from "./ArcadeScreen.js";
 import LeftMonitorScreen from "./LeftMonitorScreen.js";
 import RightMonitorScreen from "./RightMonitorScreen.js";
 import { RubiksCube } from "./RubiksCube.js";
+import Skybox from "./Skybox.js";
 
 export default class World {
   constructor(_options) {
@@ -36,9 +37,10 @@ export default class World {
         this.setLeftMonitorScreen();
         this.setRightMonitorScreen();
         this.setRubiksCube();
+        this.setSkybox();
         //this.setGoogleLeds()
         //this.setLoupedeckButtons()
-        //this.setCoffeeSteam()
+        this.setCoffeeSteam();
         //this.setTopChair()
         //this.setElgatoLight()
         //this.setBouncingLogo()
@@ -68,6 +70,10 @@ export default class World {
       this.experience.camera.instance
     );
     this.rubiksCube.newRubik.scale.set(0.021432, 0.021432, 0.021432);
+  }
+
+  setSkybox() {
+    this.skybox = new Skybox();
   }
 
   setGoogleLeds() {
@@ -133,6 +139,7 @@ export default class World {
 
     if (this.topChair) this.topChair.update();
     if (this.rubiksCube) this.rubiksCube.update();
+    if (this.skybox) this.skybox.update();
 
     if (this.bouncingLogo) this.bouncingLogo.update();
     if (this.whiteboard) this.whiteboard.update();

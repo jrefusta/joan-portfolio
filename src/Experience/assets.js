@@ -75,6 +75,31 @@ export default [
       },
       { name: "roomModel3", source: "/assets/room3.glb" },
       { name: "rubiksCube", source: "/assets/Rubik.glb" },
+      {
+        name: "sky",
+        source: "/assets/sky.jpg",
+        type: "texture",
+      },
+      {
+        name: "sky1",
+        source: "/assets/sky1.jpg",
+        type: "texture",
+      },
+      {
+        name: "sky2",
+        source: "/assets/sky2.png",
+        type: "texture",
+      },
+      {
+        name: "sky3",
+        source: "/assets/sky3.png",
+        type: "texture",
+      },
+      {
+        name: "sky4",
+        source: "/assets/sky4.png",
+        type: "texture",
+      },
     ],
   },
 ];

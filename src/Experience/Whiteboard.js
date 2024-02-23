@@ -73,9 +73,6 @@ export default class Whiteboard {
     };
   }
   update() {
-    if (!this.camera.instance) {
-      return;
-    }
     this.raycaster.setFromCamera(this.mouse, this.camera.instance);
     const intersects = this.raycaster.intersectObjects(
       this.scene.children,
@@ -123,7 +120,8 @@ export default class Whiteboard {
     ) {
       this.webglElement.style.pointerEvents = "none";
     } else {
-      this.webglElement.style.pointerEvents = "auto";
+      // TODO: Activar esto en cuanto seleccionemos whiteboard
+      //this.webglElement.style.pointerEvents = "auto";
     }
 
     if (
