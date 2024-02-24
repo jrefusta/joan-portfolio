@@ -12,7 +12,6 @@ export default class Renderer {
     this.cssElement1 = this.experience.cssElement1;
     this.cssElement2 = this.experience.cssElement2;
     this.config = this.experience.config;
-    this.debug = this.experience.debug;
     this.stats = this.experience.stats;
     this.time = this.experience.time;
     this.sizes = this.experience.sizes;

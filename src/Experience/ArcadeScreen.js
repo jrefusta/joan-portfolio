@@ -16,6 +16,7 @@ export default class ArcadeScreen {
   }
 
   setArcadeScreen() {
+    this.model = {};
     const container = document.createElement("div");
     container.style.width = this.screenSize.width + "px";
     container.style.height = this.screenSize.height + "px";
@@ -23,7 +24,7 @@ export default class ArcadeScreen {
 
     const iframe = document.createElement("iframe");
 
-    iframe.src = "http://192.168.1.72:8080/";
+    iframe.src = "http://192.168.1.72:8081/";
     iframe.style.width = this.screenSize.width + "px";
     iframe.style.height = this.screenSize.height + "px";
     iframe.style.padding = 32 + "px";
@@ -37,8 +38,8 @@ export default class ArcadeScreen {
     iframe.addEventListener("load", () => {
       this.iframeWindow = iframe.contentWindow;
       window.addEventListener("keydown", (event) => {
-        this.camera.instance.lookAt(new THREE.Vector3(0, 0, 0));
-        this.camera.instance.updateProjectionMatrix();
+        /* this.camera.instance.lookAt(new THREE.Vector3(0, 0, 0));
+        this.camera.instance.updateProjectionMatrix(); */
         this.iframeWindow.postMessage(
           { type: "keyDownParent", key: event.key },
           "*"
@@ -74,15 +75,15 @@ export default class ArcadeScreen {
       this.screenSize.height
     );
     // Create the GL plane mesh
-    const mesh = new THREE.Mesh(geometry, material);
+    this.model.mesh = new THREE.Mesh(geometry, material);
 
     // Copy the position, rotation and scale of the CSS plane to the GL plane
-    mesh.position.copy(css3dobject.position);
-    mesh.rotation.copy(css3dobject.rotation);
-    mesh.scale.copy(css3dobject.scale);
+    this.model.mesh.position.copy(css3dobject.position);
+    this.model.mesh.rotation.copy(css3dobject.rotation);
+    this.model.mesh.scale.copy(css3dobject.scale);
 
     // Add to gl scene
-    this.scene.add(mesh);
+    this.scene.add(this.model.mesh);
   }
   update() {}
 }

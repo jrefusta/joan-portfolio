@@ -4,7 +4,7 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import cubeInfo from "../../static/assets/cubeInfo.json";
 import { gsap } from "gsap";
 
-export class RubiksCube {
+class RubiksCube {
   static layers = ["row", "col", "depth"];
 
   constructor(position, scene, camera) {
@@ -494,3 +494,5 @@ export class RubiksCube {
     } else this.objectRaycasted = null;
   }
 }
+
+export default RubiksCube;

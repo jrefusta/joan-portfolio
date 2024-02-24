@@ -8,7 +8,6 @@ export default class Baked {
   constructor() {
     this.experience = new Experience();
     this.resources = this.experience.resources;
-    this.debug = this.experience.debug;
     this.scene = this.experience.scene;
     this.time = this.experience.time;
 

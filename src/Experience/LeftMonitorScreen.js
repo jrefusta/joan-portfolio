@@ -9,7 +9,6 @@ export default class LeftMonitorScreen {
     this.cssScene1 = this.experience.cssScene1;
     this.cssScene2 = this.experience.cssScene2;
     this.resources = this.experience.resources;
-    this.debug = this.experience.debug;
     this.scene = this.experience.scene;
     this.world = this.experience.world;
     this.renderer = this.experience.renderer;

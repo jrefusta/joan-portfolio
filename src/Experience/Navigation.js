@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import Experience from "./Experience.js";
-import normalizeWheel from "normalize-wheel";
+import OrbitControlsCustom from "./OrbitControlsCustom.js";
+import gsap from "gsap";
 
 export default class Navigation {
   constructor() {
@@ -9,269 +10,116 @@ export default class Navigation {
     this.camera = this.experience.camera;
     this.config = this.experience.config;
     this.time = this.experience.time;
+    this.cameraIsMoving = false;
+    this.setNavigation();
+    document.addEventListener("keydown", this.onKeyDown, false);
+  }
+  setNavigation() {
+    this.orbitControls = new OrbitControlsCustom(
+      this.camera.instance,
+      this.webglElement
+    );
+    this.orbitControls.enabled = true;
+    this.orbitControls.screenSpacePanning = true;
+    this.orbitControls.enableKeys = false;
+    this.orbitControls.zoomSpeed = 1;
+    this.orbitControls.enableDamping = true;
+    this.orbitControls.dampingFactor = 0.05;
+    this.orbitControls.rotateSpeed = 0.4;
+    this.orbitControls.maxAzimuthAngle = Math.PI * 2;
+    this.orbitControls.minAzimuthAngle = -Math.PI / 2;
+    this.orbitControls.minPolarAngle = Math.PI / 6;
+    this.orbitControls.maxPolarAngle = Math.PI / 2;
+    this.orbitControls.minDistance = 2;
+    this.orbitControls.maxDistance = 35;
 
-    this.setView();
+    this.orbitControls.target.y = 2.5;
+    this.orbitControls.update();
+  }
+  onKeyDown = (e) => {
+    console.log(this.camera);
+    if (e.key == "1") {
+      this.cameraIsMoving = true;
+      this.orbitControls.enabled = false;
+      this.moveCamera(-1.7, 5.5, 2.3009, 1);
+      this.rotateCamera(
+        -0.17756084520729903,
+        -0.6844502511134536,
+        -0.17756084520729903,
+        0.6844502511134535,
+        1.15
+      );
+      this.changeTarget(3.25776, 2.74209, 2.3009, 1);
+    }
+    if (e.key == "2") {
+      this.cameraIsMoving = true;
+      this.orbitControls.enabled = false;
+
+      this.moveCamera(-3.3927, 5.18774, 4.61366, 1);
+      this.rotateCamera(-0.08802977047890838, 0, 0, 0.9961178441878403, 1.15);
+      this.changeTarget(-3.3927, 3.18774, -4.61366, 1);
+    }
+
+    if (e.key == "3") {
+      this.cameraIsMoving = true;
+      this.orbitControls.enabled = false;
+      this.moveCamera(1.06738, 2.50725, -0.5, 1);
+      this.rotateCamera(0, 0, 0, 1, 1.15);
+      this.changeTarget(1.06738, 2.50725, -4.23009, 1);
+    }
+    if (e.key == "4") {
+      this.cameraIsMoving = true;
+      this.orbitControls.enabled = false;
+      this.moveCamera(1, 2.50725, -0.5, 1);
+      this.rotateCamera(
+        -0.000011226346092707907,
+        -0.19150733569303596,
+        -0.000002190470652534808,
+        0.9814911819496523,
+        1.15
+      );
+      this.changeTarget(2.47898, 2.50716, -4.14566, 1);
+    }
+    if (e.key == "Escape") {
+      this.cameraIsMoving = false;
+    }
+  };
+
+  moveCamera(x, y, z, duration) {
+    gsap.to(this.camera.instance.position, {
+      x,
+      y,
+      z,
+      duration,
+      ease: "sine.out",
+    });
   }
 
-  setView() {
-    this.view = {};
-
-    this.view.spherical = {};
-    this.view.spherical.value = new THREE.Spherical(
-      30,
-      Math.PI * 0.35,
-      -Math.PI * 0.25
-    );
-    // this.view.spherical.value.radius = 5
-    this.view.spherical.smoothed = this.view.spherical.value.clone();
-    this.view.spherical.smoothing = 0.005;
-    this.view.spherical.limits = {};
-    this.view.spherical.limits.radius = { min: 10, max: 50 };
-    this.view.spherical.limits.phi = { min: 0.01, max: Math.PI * 0.5 };
-    this.view.spherical.limits.theta = { min: -Math.PI * 0.5, max: 0 };
-
-    this.view.target = {};
-    this.view.target.value = new THREE.Vector3(0, 2, 0);
-    // this.view.target.value.set(0, 3, -3)
-    this.view.target.smoothed = this.view.target.value.clone();
-    this.view.target.smoothing = 0.005;
-    this.view.target.limits = {};
-    this.view.target.limits.x = { min: -4, max: 4 };
-    this.view.target.limits.y = { min: 1, max: 6 };
-    this.view.target.limits.z = { min: -4, max: 4 };
-
-    this.view.drag = {};
-    this.view.drag.delta = {};
-    this.view.drag.delta.x = 0;
-    this.view.drag.delta.y = 0;
-    this.view.drag.previous = {};
-    this.view.drag.previous.x = 0;
-    this.view.drag.previous.y = 0;
-    this.view.drag.sensitivity = 1;
-    this.view.drag.alternative = false;
-
-    this.view.zoom = {};
-    this.view.zoom.sensitivity = 0.01;
-    this.view.zoom.delta = 0;
-
-    /**
-     * Methods
-     */
-    this.view.down = (_x, _y) => {
-      this.view.drag.previous.x = _x;
-      this.view.drag.previous.y = _y;
-    };
-
-    this.view.move = (_x, _y) => {
-      this.view.drag.delta.x += _x - this.view.drag.previous.x;
-      this.view.drag.delta.y += _y - this.view.drag.previous.y;
-
-      this.view.drag.previous.x = _x;
-      this.view.drag.previous.y = _y;
-    };
-
-    this.view.up = () => {};
-
-    this.view.zoomIn = (_delta) => {
-      this.view.zoom.delta += _delta;
-    };
-
-    /**
-     * Mouse events
-     */
-    this.view.onMouseDown = (_event) => {
-      _event.preventDefault();
-
-      this.view.drag.alternative =
-        _event.button === 2 ||
-        _event.button === 1 ||
-        _event.ctrlKey ||
-        _event.shiftKey;
-
-      this.view.down(_event.clientX, _event.clientY);
-
-      window.addEventListener("mouseup", this.view.onMouseUp);
-      window.addEventListener("mousemove", this.view.onMouseMove);
-    };
-
-    this.view.onMouseMove = (_event) => {
-      _event.preventDefault();
-
-      this.view.move(_event.clientX, _event.clientY);
-    };
-
-    this.view.onMouseUp = (_event) => {
-      _event.preventDefault();
-
-      this.view.up();
-
-      window.removeEventListener("mouseup", this.view.onMouseUp);
-      window.removeEventListener("mousemove", this.view.onMouseMove);
-    };
-
-    this.webglElement.addEventListener("mousedown", this.view.onMouseDown);
-
-    /**
-     * Touch events
-     */
-    this.view.onTouchStart = (_event) => {
-      _event.preventDefault();
-
-      this.view.drag.alternative = _event.touches.length > 1;
-
-      this.view.down(_event.touches[0].clientX, _event.touches[0].clientY);
-
-      window.addEventListener("touchend", this.view.onTouchEnd);
-      window.addEventListener("touchmove", this.view.onTouchMove);
-    };
-
-    this.view.onTouchMove = (_event) => {
-      _event.preventDefault();
-
-      this.view.move(_event.touches[0].clientX, _event.touches[0].clientY);
-    };
-
-    this.view.onTouchEnd = (_event) => {
-      _event.preventDefault();
-
-      this.view.up();
-
-      window.removeEventListener("touchend", this.view.onTouchEnd);
-      window.removeEventListener("touchmove", this.view.onTouchMove);
-    };
-
-    window.addEventListener("touchstart", this.view.onTouchStart);
-
-    /**
-     * Context menu
-     */
-    this.view.onContextMenu = (_event) => {
-      _event.preventDefault();
-    };
-
-    window.addEventListener("contextmenu", this.view.onContextMenu);
-
-    /**
-     * Wheel
-     */
-    this.view.onWheel = (_event) => {
-      _event.preventDefault();
-
-      const normalized = normalizeWheel(_event);
-      this.view.zoomIn(normalized.pixelY);
-    };
-
-    window.addEventListener("mousewheel", this.view.onWheel, {
-      passive: false,
+  rotateCamera(x, y, z, w, duration) {
+    gsap.to(this.camera.instance.quaternion, {
+      x,
+      y,
+      z,
+      w,
+      duration,
+      ease: "sine.out",
+      onComplete: () => {
+        this.orbitControls.enabled = true;
+      },
     });
-    window.addEventListener("wheel", this.view.onWheel, { passive: false });
+  }
+
+  changeTarget(x, y, z, duration) {
+    gsap.to(this.orbitControls.target, {
+      x,
+      y,
+      z,
+      duration,
+      ease: "sine.out",
+    });
   }
 
   update() {
-    /**
-     * View
-     */
-    // Zoom
-    this.view.spherical.value.radius +=
-      this.view.zoom.delta * this.view.zoom.sensitivity;
-
-    // Apply limits
-    this.view.spherical.value.radius = Math.min(
-      Math.max(
-        this.view.spherical.value.radius,
-        this.view.spherical.limits.radius.min
-      ),
-      this.view.spherical.limits.radius.max
-    );
-
-    // Drag
-    if (this.view.drag.alternative) {
-      const up = new THREE.Vector3(0, 1, 0);
-      const right = new THREE.Vector3(-1, 0, 0);
-
-      up.applyQuaternion(this.camera.modes.default.instance.quaternion);
-      right.applyQuaternion(this.camera.modes.default.instance.quaternion);
-
-      up.multiplyScalar(this.view.drag.delta.y * 0.01);
-      right.multiplyScalar(this.view.drag.delta.x * 0.01);
-
-      this.view.target.value.add(up);
-      this.view.target.value.add(right);
-
-      // Apply limits
-      this.view.target.value.x = Math.min(
-        Math.max(this.view.target.value.x, this.view.target.limits.x.min),
-        this.view.target.limits.x.max
-      );
-      this.view.target.value.y = Math.min(
-        Math.max(this.view.target.value.y, this.view.target.limits.y.min),
-        this.view.target.limits.y.max
-      );
-      this.view.target.value.z = Math.min(
-        Math.max(this.view.target.value.z, this.view.target.limits.z.min),
-        this.view.target.limits.z.max
-      );
-    } else {
-      this.view.spherical.value.theta -=
-        (this.view.drag.delta.x * this.view.drag.sensitivity) /
-        this.config.smallestSide;
-      this.view.spherical.value.phi -=
-        (this.view.drag.delta.y * this.view.drag.sensitivity) /
-        this.config.smallestSide;
-
-      // Apply limits
-      this.view.spherical.value.theta = Math.min(
-        Math.max(
-          this.view.spherical.value.theta,
-          this.view.spherical.limits.theta.min
-        ),
-        this.view.spherical.limits.theta.max
-      );
-      this.view.spherical.value.phi = Math.min(
-        Math.max(
-          this.view.spherical.value.phi,
-          this.view.spherical.limits.phi.min
-        ),
-        this.view.spherical.limits.phi.max
-      );
-    }
-
-    this.view.drag.delta.x = 0;
-    this.view.drag.delta.y = 0;
-    this.view.zoom.delta = 0;
-
-    // Smoothing
-    this.view.spherical.smoothed.radius +=
-      (this.view.spherical.value.radius - this.view.spherical.smoothed.radius) *
-      this.view.spherical.smoothing *
-      this.time.delta;
-    this.view.spherical.smoothed.phi +=
-      (this.view.spherical.value.phi - this.view.spherical.smoothed.phi) *
-      this.view.spherical.smoothing *
-      this.time.delta;
-    this.view.spherical.smoothed.theta +=
-      (this.view.spherical.value.theta - this.view.spherical.smoothed.theta) *
-      this.view.spherical.smoothing *
-      this.time.delta;
-
-    this.view.target.smoothed.x +=
-      (this.view.target.value.x - this.view.target.smoothed.x) *
-      this.view.target.smoothing *
-      this.time.delta;
-    this.view.target.smoothed.y +=
-      (this.view.target.value.y - this.view.target.smoothed.y) *
-      this.view.target.smoothing *
-      this.time.delta;
-    this.view.target.smoothed.z +=
-      (this.view.target.value.z - this.view.target.smoothed.z) *
-      this.view.target.smoothing *
-      this.time.delta;
-
-    const viewPosition = new THREE.Vector3();
-    viewPosition.setFromSpherical(this.view.spherical.smoothed);
-    viewPosition.add(this.view.target.smoothed);
-
-    this.camera.modes.default.instance.position.copy(viewPosition);
-    this.camera.modes.default.instance.lookAt(this.view.target.smoothed);
+    this.orbitControls.update();
   }
 }

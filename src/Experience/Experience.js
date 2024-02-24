@@ -37,7 +37,6 @@ export default class Experience {
     this.sizes = new Sizes();
     this.setConfig();
     this.setStats();
-    this.setDebug();
     this.setScene();
     this.setCamera();
     this.setRenderer();
@@ -78,23 +77,10 @@ export default class Experience {
     this.config.height = boundings.height || window.innerHeight;
     this.config.smallestSide = Math.min(this.config.width, this.config.height);
     this.config.largestSide = Math.max(this.config.width, this.config.height);
-
-    // Debug
-    // this.config.debug = window.location.hash === '#debug'
-    this.config.debug = this.config.width > 420;
   }
 
   setStats() {
-    if (this.config.debug) {
-      this.stats = new Stats(true);
-    }
-  }
-
-  setDebug() {
-    if (this.config.debug) {
-      this.debug = new Pane();
-      this.debug.containerElem_.style.width = "320px";
-    }
+    this.stats = new Stats(true);
   }
 
   setScene() {
@@ -131,13 +117,12 @@ export default class Experience {
   update() {
     if (this.stats) this.stats.update();
 
+    if (this.navigation) this.navigation.update();
     this.camera.update();
 
     if (this.renderer) this.renderer.update();
 
     if (this.world) this.world.update();
-
-    if (this.navigation) this.navigation.update();
 
     window.requestAnimationFrame(() => {
       this.update();
