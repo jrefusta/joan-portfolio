@@ -15,9 +15,7 @@ export default class Skybox {
     this.renderer = this.experience.renderer;
     this.time = this.experience.time;
     this.camera = this.experience.camera;
-    this.mouse = new THREE.Vector2(-1, -1);
     this.drawStartPos = new THREE.Vector2(-1, -1);
-    this.raycaster = new THREE.Raycaster();
     this.drawColor = "black";
     this.offset = new THREE.Vector3(0.765921, -0.121864, -1.42433);
     this.vertices = [
@@ -34,9 +32,11 @@ export default class Skybox {
       this.intersectLinePlane(this.camera.instance.position, v);
     });
     const planeGeom = new THREE.PlaneGeometry(320, 200);
+    const textureSky = this.resources.items.sky4;
+    textureSky.colorSpace = THREE.SRGBColorSpace;
     this.planeMat = new THREE.ShaderMaterial({
       uniforms: {
-        sky: { value: this.resources.items.sky4 },
+        sky: { value: textureSky },
         minY: { value: this.limitationPlane[1].x },
         maxY: { value: this.limitationPlane[0].x },
         minZ: { value: this.limitationPlane[1].y },

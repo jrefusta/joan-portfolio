@@ -24,6 +24,13 @@ export default class Carpet {
         fragmentShader: fragmentShaderCarpet,
         side: THREE.DoubleSide,
         uniforms: {
+          color: {
+            value: new THREE.Color(
+              0.7529412,
+              0.5424671,
+              0.4392157
+            ).convertSRGBToLinear(),
+          },
           shellCount: { value: shellCount },
           shellIndex: { value: i },
           shellLength: { value: 0.16 },
@@ -41,6 +48,7 @@ export default class Carpet {
       planeMesh.castShadow = true;
       this.carpetGroup.add(planeMesh);
     }
+    this.carpetGroup.name = "Carpet";
     this.carpetGroup.scale.set(0.0355, 0.0355, 0.0355);
     this.carpetGroup.position.set(-2.61408, 0.36, -0.904327);
     this.scene.add(this.carpetGroup);

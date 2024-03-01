@@ -4,6 +4,7 @@ uniform float shellCount;
 uniform float shellIndex;
 uniform float density;
 uniform float thickness;
+uniform vec3 color;
 
 float hash(uint n) {
 // Integer hash adapted for GLSL from Hugo Elias
@@ -30,7 +31,7 @@ void main() {
     discard;
   }
   else {
-    vec3 color = vec3(0.7529412, 0.5424671, 0.4392157) * pow(max(h, 0.125), 0.5);
+    vec3 color = color * pow(max(h, 0.125), 0.5);
     gl_FragColor = vec4(color, 1.0) ;
   }
 }

@@ -1,72 +1,70 @@
 import * as THREE from "three";
-
 import Experience from "./Experience.js";
-import vertexShader from "./shaders/baked/vertex.glsl";
-import fragmentShader from "./shaders/baked/fragment.glsl";
 
 export default class Baked {
   constructor() {
     this.experience = new Experience();
     this.resources = this.experience.resources;
     this.scene = this.experience.scene;
-    this.time = this.experience.time;
 
     this.setModel();
   }
 
-  setModel() {
-    this.model = {};
-
-    this.model.mesh = this.resources.items.roomModel.scene; //.children[0];
-
-    this.model.bakedDayTexture = this.resources.items.bakedDayTexture;
-    this.model.bakedDayTexture.flipY = false;
-    this.model.bakedDayTexture.encoding = THREE.SRGBColorSpace;
-    /* 
-    this.model.bakedNightTexture = this.resources.items.bakedNightTexture;
-    this.model.bakedNightTexture.encoding = THREE.SRGBColorSpace;
-    this.model.bakedNightTexture.flipY = false;
-
-    this.model.bakedNeutralTexture = this.resources.items.bakedNeutralTexture;
-    this.model.bakedNeutralTexture.encoding = THREE.SRGBColorSpace;
-    this.model.bakedNeutralTexture.flipY = false;
-
-    this.model.lightMapTexture = this.resources.items.lightMapTexture;
-    this.model.lightMapTexture.flipY = false; */
-
-    this.colors = {};
-    this.colors.tv = "#ff115e";
-    this.colors.desk = "#ff6700";
-    this.colors.pc = "#0082ff";
-
-    this.model.material = new THREE.ShaderMaterial({
-      uniforms: {
-        uBakedDayTexture: { value: this.model.bakedDayTexture },
-        uBakedNightTexture: { value: this.model.bakedNightTexture },
-        uBakedNeutralTexture: { value: this.model.bakedNeutralTexture },
-        uLightMapTexture: { value: this.model.lightMapTexture },
-
-        uNightMix: { value: 1 },
-        uNeutralMix: { value: 0 },
-
-        uLightTvColor: { value: new THREE.Color(this.colors.tv) },
-        uLightTvStrength: { value: 1.47 },
-
-        uLightDeskColor: { value: new THREE.Color(this.colors.desk) },
-        uLightDeskStrength: { value: 1.9 },
-
-        uLightPcColor: { value: new THREE.Color(this.colors.pc) },
-        uLightPcStrength: { value: 1.4 },
-      },
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-    });
-    this.model.mesh.traverse((_child) => {
+  setMaterial(object, material) {
+    object.traverse((_child) => {
       if (_child instanceof THREE.Mesh) {
-        _child.material = this.model.material;
+        _child.material = material;
       }
     });
+  }
 
-    this.scene.add(this.model.mesh);
+  setModel() {
+    this.model = {};
+    this.model.room1 = this.resources.items._roomModel.scene;
+
+    this.model.baked1 = this.resources.items._baked1;
+    this.model.baked1.colorSpace = "srgb";
+    this.model.baked1.needsUpdate = true;
+    this.model.material = new THREE.MeshBasicMaterial({
+      map: this.model.baked1,
+    });
+
+    this.model.room2 = this.resources.items._roomModel2.scene;
+    this.model.baked2 = this.resources.items._baked2;
+    this.model.baked2.colorSpace = "srgb";
+    this.model.baked2.needsUpdate = true;
+    this.model.material2 = new THREE.MeshBasicMaterial({
+      map: this.model.baked2,
+    });
+
+    this.model.room3 = this.resources.items._roomModel3.scene;
+    this.model.baked3 = this.resources.items._baked3;
+    this.model.baked3.colorSpace = "srgb";
+    this.model.baked3.needsUpdate = true;
+    this.model.material3 = new THREE.MeshBasicMaterial({
+      map: this.model.baked3,
+    });
+
+    this.model.linkedin = this.resources.items.linkedin.scene;
+    this.model.linkedin.name = "linkedin";
+    this.model.github = this.resources.items.github.scene;
+    this.model.github.name = "github";
+    this.model.itchio = this.resources.items.itchio.scene;
+    this.model.itchio.name = "itchio";
+    this.setMaterial(this.model.room1, this.model.material);
+    this.setMaterial(this.model.room2, this.model.material2);
+    this.setMaterial(this.model.room3, this.model.material3);
+    this.setMaterial(this.model.linkedin, this.model.material3);
+    this.setMaterial(this.model.github, this.model.material3);
+    this.setMaterial(this.model.itchio, this.model.material3);
+
+    this.scene.add(this.model.room1);
+
+    this.scene.add(this.model.room2);
+
+    this.scene.add(this.model.room3);
+    this.scene.add(this.model.linkedin);
+    this.scene.add(this.model.github);
+    this.scene.add(this.model.itchio);
   }
 }

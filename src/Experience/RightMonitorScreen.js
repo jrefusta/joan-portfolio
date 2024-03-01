@@ -17,11 +17,30 @@ export default class RightMonitorScreen {
     this.camera = this.experience.camera;
     this.mouse = new THREE.Vector2(-1, -1);
     this.drawStartPos = new THREE.Vector2(-1, -1);
-    this.raycaster = new THREE.Raycaster();
+    this.raycaster = this.experience.raycaster;
     this.drawColor = "black";
     this.positionsToDraw = [];
     this.screenMonitorSize = new THREE.Vector2(1370.1780000000001, 764.798);
+    this.model = {};
+    this.setModel();
     this.setRightMonitorScreen();
+  }
+  setModel() {
+    this.model.mesh = this.resources.items.rightMonitor.scene;
+
+    this.model.bakedDayTexture = this.resources.items._baked2;
+    this.model.bakedDayTexture.flipY = false;
+    this.model.bakedDayTexture.colorSpace = THREE.SRGBColorSpace;
+    this.model.material = new THREE.MeshBasicMaterial({
+      map: this.model.bakedDayTexture,
+    });
+    this.model.mesh.traverse((_child) => {
+      if (_child instanceof THREE.Mesh) {
+        _child.material = this.model.material;
+      }
+    });
+    this.model.mesh.name = "rightMonitor";
+    this.scene.add(this.model.mesh);
   }
 
   setRightMonitorScreen() {
@@ -32,7 +51,7 @@ export default class RightMonitorScreen {
 
     const iframe2 = document.createElement("iframe");
 
-    iframe2.src = "https://www.cobayaunchained.com/";
+    iframe2.src = "https://henryheffernan.com/";
     iframe2.style.width = this.screenMonitorSize.width + "px";
     iframe2.style.height = this.screenMonitorSize.height + "px";
     iframe2.style.padding = 8 + "px";
@@ -51,7 +70,7 @@ export default class RightMonitorScreen {
     css3dobject2.rotateY((-7.406 * Math.PI) / 180);
     this.cssScene2.add(css3dobject2);
 
-    const material = new THREE.MeshLambertMaterial({ color: "red" });
+    const material = new THREE.MeshBasicMaterial({ color: "black" });
     material.side = THREE.DoubleSide;
     material.opacity = 0;
     material.transparent = true;
@@ -65,13 +84,51 @@ export default class RightMonitorScreen {
     );
     // Create the GL plane mesh
 
-    const mesh2 = new THREE.Mesh(geometry1, material);
-    mesh2.position.copy(css3dobject2.position);
-    mesh2.rotation.copy(css3dobject2.rotation);
-    mesh2.scale.copy(css3dobject2.scale);
-
+    const screen = new THREE.Mesh(geometry1, material);
+    screen.position.copy(css3dobject2.position);
+    screen.rotation.copy(css3dobject2.rotation);
+    screen.scale.copy(css3dobject2.scale);
+    screen.name = "rightMonitorScreen";
     // Add to gl scene
-    this.scene.add(mesh2);
+    this.model.mesh.add(screen);
   }
-  update() {}
+
+  activateControls() {
+    // Configurar eventos del mouse
+    window.addEventListener("mousemove", this.onMouseMove, false);
+    this.isActive = true;
+  }
+  deactivateControls() {
+    // Configurar eventos del mouse
+    window.removeEventListener("mousemove", this.onMouseMove, false);
+    this.isActive = false;
+  }
+
+  onMouseMove = (event) => {
+    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    if (
+      this.objectRaycasted &&
+      this.objectRaycasted.object &&
+      this.objectRaycasted.object.name == "rightMonitorScreen"
+    ) {
+      this.experience.navigation.orbitControls.enabled = false;
+      this.webglElement.style.pointerEvents = "none";
+    } else {
+      this.experience.navigation.orbitControls.enabled = true;
+      this.webglElement.style.pointerEvents = "auto";
+    }
+  };
+
+  update() {
+    if (!this.isActive) {
+      return;
+    }
+    this.raycaster.setFromCamera(this.mouse, this.camera.instance);
+    const intersects = this.raycaster.intersectObjects(
+      this.scene.children,
+      true
+    );
+    this.objectRaycasted = intersects.length > 0 ? intersects[0] : null;
+  }
 }

@@ -1,8 +1,6 @@
 import * as THREE from "three";
 import Experience from "./Experience.js";
 import Baked from "./Baked.js";
-import Baked2 from "./Baked2.js";
-import Baked3 from "./Baked3.js";
 import CoffeeSteam from "./CoffeeSteam.js";
 import TopChair from "./TopChair.js";
 import Screen from "./Screen.js";
@@ -19,14 +17,11 @@ export default class World {
     this.experience = new Experience();
     this.config = this.experience.config;
     this.scene = this.experience.scene;
-    this.sceneRubik = this.experience.sceneRubik;
     this.resources = this.experience.resources;
 
     this.resources.on("groupEnd", (_group) => {
       if (_group.name === "base") {
         this.setBaked();
-        this.setBaked2();
-        this.setBaked3();
         this.setWhiteboard();
         this.setCarpet();
         this.setArcadeScreen();
@@ -49,23 +44,12 @@ export default class World {
     this.baked = new Baked();
   }
 
-  setBaked2() {
-    this.baked2 = new Baked2();
-  }
-
-  setBaked3() {
-    this.baked3 = new Baked3();
-  }
-
   setRubiksCube() {
     this.rubiksCube = new RubiksCube(
-      //new THREE.Vector3(-0.62668, 1.52897, -3.85849),
       new THREE.Vector3(-0.67868, 1.499, -3.92849),
-      //new THREE.Vector3(0, 0, 0),
-      this.sceneRubik,
-      this.experience.camera.instance
+      0.021432
+      //new THREE.Vector3(0, 2, 0)
     );
-    this.rubiksCube.newRubik.scale.set(0.021432, 0.021432, 0.021432);
   }
 
   setSkybox() {
@@ -136,6 +120,8 @@ export default class World {
     if (this.topChair) this.topChair.update();
     if (this.rubiksCube) this.rubiksCube.update();
     if (this.skybox) this.skybox.update();
+    if (this.leftMonitorScreen) this.leftMonitorScreen.update();
+    if (this.rightMonitorScreen) this.rightMonitorScreen.update();
 
     if (this.bouncingLogo) this.bouncingLogo.update();
     if (this.whiteboard) this.whiteboard.update();

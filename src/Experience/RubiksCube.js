@@ -1,20 +1,19 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
+import Experience from "./Experience";
 import cubeInfo from "../../static/assets/cubeInfo.json";
 import { gsap } from "gsap";
 
 class RubiksCube {
   static layers = ["row", "col", "depth"];
 
-  constructor(position, scene, camera) {
-    this.position = position;
-    this.scene = scene;
-    this.camera = camera;
-
-    this.newRubik = new THREE.Group();
-    this.dracoLoader = new DRACOLoader();
-    this.dracoLoader.setDecoderPath("draco/");
+  constructor(position, scale) {
+    this.experience = new Experience();
+    this.position = this.originalPos = position;
+    this.scale = this.originalScale = scale;
+    this.scene = this.experience.scene;
+    this.camera = this.experience.camera.instance;
+    this.resources = this.experience.resources;
+    this.rubikGroup = new THREE.Group();
     this.rubikCubes = [];
     this.childrensToRotate = [];
     this.sideToRotate;
@@ -29,52 +28,57 @@ class RubiksCube {
     this.dragging = false;
     this.objectClicked;
     this.isMoving = false;
-
     this.allCubies = [];
+    this.isActive = false;
     this.pointer = new THREE.Vector2();
-    this.raycaster = new THREE.Raycaster();
-
-    const loaderGLTF = new GLTFLoader();
-    loaderGLTF.setDRACOLoader(this.dracoLoader);
-    loaderGLTF.load("./assets/Rubik.glb", (gltf) => {
-      let object = gltf.scene;
-      gltf.scene.traverse(function (child) {
-        if (child.isMesh) {
-          child.castShadow = true;
-        }
-      });
-      for (var i = object.children.length - 1; i >= 0; i--) {
-        let currentChild = object.children[i];
-        if (!currentChild.isMesh) {
-          for (var j = 0; j < currentChild.children.length; j++) {
-            let currentMesh = currentChild.children[j];
-            /* if (currentMesh.isMesh) {
+    this.raycaster = this.experience.raycaster;
+    this.setRubiksCube();
+  }
+  setRubiksCube() {
+    const object = this.resources.items.rubiksCube.scene;
+    for (let i = object.children.length - 1; i >= 0; i--) {
+      const currentChild = object.children[i];
+      if (!currentChild.isMesh) {
+        for (var j = 0; j < currentChild.children.length; j++) {
+          let currentMesh = currentChild.children[j];
+          /* if (currentMesh.isMesh) {
               currentMesh.material.envMap = envMapo;
             } */
-          }
         }
-        let currentInfo = cubeInfo[i];
-        currentChild.row = currentInfo.row;
-        currentChild.col = currentInfo.col;
-        currentChild.depth = currentInfo.depth;
-        currentChild.colors = currentInfo.colors;
-        currentChild.isRubik = true;
-        currentChild.receiveShadow = true;
-        currentChild.castShadow = true;
-
-        currentChild.position.set(position.x, position.y, position.z);
-        this.rubikCubes.push(currentChild);
-        this.newRubik.add(currentChild);
       }
+      const currentInfo = cubeInfo[i];
+      currentChild.row = currentInfo.row;
+      currentChild.col = currentInfo.col;
+      currentChild.depth = currentInfo.depth;
+      currentChild.colors = currentInfo.colors;
+      currentChild.isRubik = true;
 
-      this.newRubik.position.set(
+      currentChild.position.set(
         this.position.x,
         this.position.y,
         this.position.z
       );
-      this.newRubik.rotateY((-152.484 * Math.PI) / 180);
-      this.scene.add(this.newRubik);
-    });
+      this.rubikCubes.push(currentChild);
+      this.rubikGroup.add(currentChild);
+    }
+    this.rubikGroup.position.set(
+      this.position.x,
+      this.position.y,
+      this.position.z
+    );
+    this.rubikGroup.scale.set(this.scale, this.scale, this.scale);
+    this.rubikGroup.name = "rubikGroup";
+    this.rubikGroup.rotateY((-152.484 * Math.PI) / 180);
+    this.scene.add(this.rubikGroup);
+
+    const light = new THREE.AmbientLight(0xffffff, 1);
+    const lightD = new THREE.DirectionalLight(0xffffff);
+    lightD.position.y = 40;
+    lightD.position.z = 5;
+    5;
+    this.scene.add(light);
+    this.scene.add(lightD);
+    //});
     /*  let numMap = 0;
     const cubeTextureLoader = new THREE.CubeTextureLoader();
     let envMapo = cubeTextureLoader.load([
@@ -85,22 +89,111 @@ class RubiksCube {
       "/environmentMaps/" + numMap + "/pz.jpg",
       "/environmentMaps/" + numMap + "/nz.jpg",
     ]); */
-    this.pointer = new THREE.Vector2();
-    document.addEventListener("pointermove", this.onPointerMove);
-    document.addEventListener("pointerdown", this.onPointerDown);
-    document.addEventListener("pointerup", this.onPointerUp);
+
+    this.startNextMove();
+  }
+
+  activateControls() {
+    window.addEventListener("pointermove", this.onPointerMove);
+    window.addEventListener("pointerdown", this.onPointerDown);
+    window.addEventListener("pointerup", this.onPointerUp);
+    this.isActive = true;
+  }
+
+  deactivateControls() {
+    window.removeEventListener("pointermove", this.onPointerMove);
+    window.removeEventListener("pointerdown", this.onPointerDown);
+    window.removeEventListener("pointerup", this.onPointerUp);
+    this.isActive = false;
   }
 
   reubicateCube() {
-    this.newRubik.children.forEach((child) => {
-      child.position.set(0, 0, 0);
+    this.rubikGroup.traverse((child) => {
+      if (child.isMesh) {
+        child.renderOrder = 999;
+        child.material.transparent = true;
+        child.material.depthTest = false;
+      }
+    });
+    this.rubikGroup.children.forEach((child) => {
+      gsap.to(child.position, {
+        x: 0,
+        y: 0,
+        z: 0,
+        duration: 1,
+        ease: "sine.out",
+      });
+    });
+    gsap.to(this.rubikGroup.scale, {
+      x: 1,
+      y: 1,
+      z: 1,
+      duration: 1,
+      ease: "sine.out",
+    });
+    gsap.to(this.rubikGroup.position, {
+      x: 0,
+      y: 0,
+      z: 0,
+      duration: 1,
+      ease: "sine.out",
+    });
+    gsap.to(this.rubikGroup.rotation, {
+      x: 0,
+      y: 0,
+      z: 0,
+      duration: 1,
+      ease: "sine.out",
+      onComplete: () => {
+        this.isActive = true;
+      },
     });
     this.position = new THREE.Vector3(0, 0, 0);
-    this.newRubik.scale.set(1, 1, 1);
-    this.newRubik.position.set(0, 0, 0);
-    this.newRubik.rotation.x = 0;
-    this.newRubik.rotation.y = 0;
-    this.newRubik.rotation.z = 0;
+  }
+
+  resetOriginalConfig() {
+    this.rubikGroup.traverse((child) => {
+      if (child.isMesh) {
+        child.renderOrder = 0;
+        child.material.transparent = false;
+        child.material.depthTest = true;
+      }
+    });
+    this.rubikGroup.children.forEach((child) => {
+      gsap.to(child.position, {
+        x: this.originalPos.x,
+        y: this.originalPos.y,
+        z: this.originalPos.z,
+        duration: 1,
+        ease: "sine.out",
+      });
+    });
+    gsap.to(this.rubikGroup.scale, {
+      x: this.originalScale,
+      y: this.originalScale,
+      z: this.originalScale,
+      duration: 1,
+      ease: "sine.out",
+    });
+    gsap.to(this.rubikGroup.position, {
+      x: this.originalPos.x,
+      y: this.originalPos.y,
+      z: this.originalPos.z,
+      duration: 1,
+      ease: "sine.out",
+    });
+    gsap.to(this.rubikGroup.rotation, {
+      x: Math.PI,
+      y: -0.48024479697875944,
+      z: Math.PI,
+      duration: 1,
+      ease: "sine.out",
+    });
+    this.position = new THREE.Vector3(
+      this.originalPos.x,
+      this.originalPos.y,
+      this.originalPos.z
+    );
   }
 
   onPointerMove = (event) => {
@@ -114,7 +207,7 @@ class RubiksCube {
       this.objectRaycasted.object.parent.isRubik &&
       !this.isMoving
     ) {
-      let normal = this.objectRaycasted.face.normal;
+      const normal = this.objectRaycasted.face.normal;
       this.firstClickNormal = this.getRealNormal(
         normal.transformDirection(
           this.objectRaycasted.object.parent.matrixWorld
@@ -130,15 +223,15 @@ class RubiksCube {
   };
   onPointerUp = (event) => {
     if (this.draggingg) {
-      let currentClickPosition = new THREE.Vector2(
+      const currentClickPosition = new THREE.Vector2(
         this.pointer.x,
         this.pointer.y
       );
-      let distanceVector = new THREE.Vector2(
+      const distanceVector = new THREE.Vector2(
         currentClickPosition.x - this.firstClickPosition.x,
         currentClickPosition.y - this.firstClickPosition.y
       );
-      let verticalMovement =
+      const verticalMovement =
         Math.abs(distanceVector.x) <= Math.abs(distanceVector.y);
       const isPositiveX = distanceVector.x >= 0;
       const isPositiveY = distanceVector.y >= 0;
@@ -268,19 +361,26 @@ class RubiksCube {
   moveComplete() {
     this.isMoving = false;
     this.pivot.updateMatrixWorld();
-    this.scene.remove(this.pivot);
-    let currentOri = this.sideToRotate == -1 ? 0 : 1;
-    let currLay;
-    if (this.layerToRotate === "x") currLay = "col";
-    if (this.layerToRotate === "y") currLay = "row";
-    if (this.layerToRotate === "z") currLay = "depth";
+    this.scene.remove(this.pivot.children);
+    const currentOri = this.sideToRotate == -1 ? 0 : 1;
+    const currLay =
+      this.layerToRotate === "x"
+        ? "col"
+        : this.layerToRotate === "y"
+        ? "row"
+        : this.layerToRotate === "z"
+        ? "depth"
+        : undefined;
     this.childrensToRotate.forEach((cube) => {
       cube.updateMatrixWorld();
       cube.rubikPosition = cube.position.clone();
       cube.rubikPosition.applyMatrix4(this.pivot.matrixWorld);
+
       this.scene.attach(cube);
       this.updateValuesAfterRotation(currLay, cube, currentOri);
+      this.rubikGroup.add(cube);
     });
+
     this.movesCompletedStack.push(this.currentMove);
     this.startNextMove();
     this.allCubies.length = 0;
@@ -462,12 +562,13 @@ class RubiksCube {
         );
         this.pivot.rotation.set(0, 0, 0);
         this.pivot.updateMatrixWorld();
+        this.pivot.name = "rubikPivot";
         this.scene.add(this.pivot);
         this.childrensToRotate.forEach((cube) => {
           this.pivot.attach(cube);
         });
         this.isMoving = true;
-        let targetRotation =
+        const targetRotation =
           this.pivot.rotation[this.layerToRotate] +
           (this.sideToRotate * Math.PI) / 2;
         const duration = 0.5;
@@ -484,6 +585,9 @@ class RubiksCube {
     }
   }
   update() {
+    if (!this.isActive) {
+      return;
+    }
     this.raycaster.setFromCamera(this.pointer, this.camera);
     const intersects = this.raycaster.intersectObjects(
       this.scene.children,

@@ -3,6 +3,10 @@ import Experience from "./Experience.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { CSS3DRenderer } from "three/examples/jsm/renderers/CSS3DRenderer.js";
+import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
+import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader.js";
 
 export default class Renderer {
   constructor(_options = {}) {
@@ -16,19 +20,18 @@ export default class Renderer {
     this.time = this.experience.time;
     this.sizes = this.experience.sizes;
     this.scene = this.experience.scene;
-    this.sceneRubik = this.experience.sceneRubik;
     this.camera = this.experience.camera;
     this.cssScene = this.experience.cssScene;
     this.cssScene1 = this.experience.cssScene1;
     this.cssScene2 = this.experience.cssScene2;
-    this.usePostprocess = false;
+    this.usePostprocess = true;
 
     this.setInstance();
-    //this.setPostProcess();
+    this.setPostProcess();
   }
 
   setInstance() {
-    this.clearColor = "#010101";
+    this.clearColor = new THREE.Color(0x072446).convertSRGBToLinear();
 
     // Renderer
     this.instance = new THREE.WebGLRenderer({
@@ -49,12 +52,16 @@ export default class Renderer {
 
     // this.instance.physicallyCorrectLights = true
     // this.instance.gammaOutPut = true
-    this.instance.outputColorSpace = THREE.SRGBColorSpace;
+    this.instance.outputColorSpace = "srgb";
     this.webglElement.appendChild(this.instance.domElement);
     // this.instance.shadowMap.type = THREE.PCFSoftShadowMap
     // this.instance.shadowMap.enabled = false
-    // this.instance.toneMapping = THREE.ReinhardToneMapping
-    // this.instance.toneMappingExposure = 1.3
+    //this.instance.toneMapping = THREE.ReinhardToneMapping;
+    //this.instance.toneMappingExposure = 0.3;
+    this.rubiksInstance = new THREE.WebGLRenderer({
+      alpha: false,
+      antialias: true,
+    });
     this.cssInstance = new CSS3DRenderer();
     this.cssInstance.setSize(this.sizes.width, this.sizes.height);
     this.cssInstance.domElement.style.position = "absolute";
@@ -82,52 +89,74 @@ export default class Renderer {
     }
   }
 
-  /*setPostProcess() {
+  setPostProcess() {
     this.postProcess = {};
-
-    
     this.postProcess.renderPass = new RenderPass(
       this.scene,
       this.camera.instance
     );
+    this.postProcess.outlinePass = new OutlinePass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      this.scene,
+      this.camera.instance
+    );
+    this.postProcess.outlinePass.visibleEdgeColor.set(0xffffff);
+    this.postProcess.outlinePass.hiddenEdgeColor.set(0xffffff);
+    this.postProcess.outlinePass.edgeThickness = 3;
+    this.postProcess.outlinePass.edgeStrength = 6;
 
-    const RenderTargetClass =
+    /*    const RenderTargetClass =
       this.config.pixelRatio >= 2
         ? THREE.WebGLRenderTarget
-        : THREE.WebGLMultisampleRenderTarget;
+        : THREE.WebGLMultisampleRenderTarget; */
     // const RenderTargetClass = THREE.WebGLRenderTarget
     this.renderTarget = new THREE.RenderTarget(
       this.config.width,
       this.config.height,
       {
-        generateMipmaps: true,
+        samples: this.instance.getPixelRatio() === 1 ? 2 : 0,
+        generateMipmaps: false,
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
-        format: THREE.RGBFormat,
-        encoding: THREE.SRGBColorSpace,
+        colorSpace: "srgb",
       }
     );
+
     this.postProcess.composer = new EffectComposer(
       this.instance,
       this.renderTarget
     );
+
     this.postProcess.composer.setSize(this.config.width, this.config.height);
     this.postProcess.composer.setPixelRatio(this.config.pixelRatio);
-
+    this.gammaCorrectionShader = new ShaderPass(GammaCorrectionShader);
     this.postProcess.composer.addPass(this.postProcess.renderPass);
-  }*/
+    this.postProcess.composer.addPass(this.postProcess.outlinePass);
+    console.log(this.postProcess.composer.renderTarget1.texture.colorSpace);
+    console.log(this.postProcess.composer.renderTarget2.texture.colorSpace);
+    this.postProcess.composer.addPass(this.gammaCorrectionShader);
+    if (
+      this.instance.getPixelRatio() === 1 &&
+      !this.instance.capabilities.isWebGL2
+    ) {
+      const smaaPass = new SMAAPass();
+      this.postProcess.composer.addPass(smaaPass);
+    }
+  }
 
   resize() {
     // Instance
     this.instance.setSize(this.config.width, this.config.height);
     this.instance.setPixelRatio(this.config.pixelRatio);
+    this.rubiksInstance.setSize(this.config.width, this.config.height);
+    this.rubiksInstance.setPixelRatio(this.config.pixelRatio);
     this.cssInstance.setSize(this.config.width, this.config.height);
     this.cssInstance1.setSize(this.config.width, this.config.height);
     this.cssInstance2.setSize(this.config.width, this.config.height);
 
     // Post process
-    //this.postProcess.composer.setSize(this.config.width, this.config.height);
-    //this.postProcess.composer.setPixelRatio(this.config.pixelRatio);
+    this.postProcess.composer.setSize(this.config.width, this.config.height);
+    this.postProcess.composer.setPixelRatio(this.config.pixelRatio);
   }
 
   update() {
@@ -139,13 +168,10 @@ export default class Renderer {
       this.postProcess.composer.render();
     } else {
       this.instance.render(this.scene, this.camera.instance);
-      this.instance.autoClear = false;
-      this.instance.render(this.sceneRubik, this.camera.instance);
-      this.cssInstance.render(this.cssScene, this.camera.instance);
-      this.cssInstance1.render(this.cssScene1, this.camera.instance);
-      this.cssInstance2.render(this.cssScene2, this.camera.instance);
-      this.instance.autoClear = true;
     }
+    this.cssInstance.render(this.cssScene, this.camera.instance);
+    this.cssInstance1.render(this.cssScene1, this.camera.instance);
+    this.cssInstance2.render(this.cssScene2, this.camera.instance);
 
     if (this.stats) {
       this.stats.afterRender();

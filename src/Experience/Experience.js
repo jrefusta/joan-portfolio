@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { Pane } from "tweakpane";
 
 import Time from "./Utils/Time.js";
 import Sizes from "./Utils/Sizes.js";
@@ -34,7 +33,10 @@ export default class Experience {
     }
 
     this.time = new Time();
+    this.clock = new THREE.Clock();
+    this.raycaster = new THREE.Raycaster();
     this.sizes = new Sizes();
+    this.mouse = new THREE.Vector2();
     this.setConfig();
     this.setStats();
     this.setScene();
@@ -85,13 +87,9 @@ export default class Experience {
 
   setScene() {
     this.scene = new THREE.Scene();
-    this.sceneRubik = new THREE.Scene();
     this.cssScene = new THREE.Scene();
     this.cssScene1 = new THREE.Scene();
     this.cssScene2 = new THREE.Scene();
-
-    const light = new THREE.AmbientLight(0xffffff);
-    this.sceneRubik.add(light);
   }
 
   setCamera() {

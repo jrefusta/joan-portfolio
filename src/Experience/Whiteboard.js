@@ -14,12 +14,35 @@ export default class Whiteboard {
     this.renderer = this.experience.renderer;
     this.time = this.experience.time;
     this.camera = this.experience.camera;
-    this.mouse = new THREE.Vector2(-1, -1);
+    this.mouse = this.experience.mouse;
+    this.whiteboardGroup = new THREE.Group();
     this.drawStartPos = new THREE.Vector2(-1, -1);
-    this.raycaster = new THREE.Raycaster();
+    this.raycaster = this.experience.raycaster;
     this.drawColor = "black";
+    this.isActive = false;
     this.positionsToDraw = [];
+    this.model = {};
+    this.setModel();
     this.setWhiteboard();
+  }
+
+  setModel() {
+    this.model.mesh = this.resources.items.whiteboard.scene;
+
+    this.model.bakedDayTexture = this.resources.items._baked1;
+    this.model.bakedDayTexture.flipY = false;
+    this.model.bakedDayTexture.colorSpace = THREE.SRGBColorSpace;
+    this.model.material = new THREE.MeshBasicMaterial({
+      map: this.model.bakedDayTexture,
+    });
+    this.model.mesh.traverse((_child) => {
+      if (_child instanceof THREE.Mesh) {
+        _child.material = this.model.material;
+      }
+    });
+    this.whiteboardGroup.add(this.model.mesh);
+    this.model.mesh.name = "whiteboard";
+    this.scene.add(this.model.mesh);
   }
 
   setWhiteboard() {
@@ -31,13 +54,14 @@ export default class Whiteboard {
     planeMesh.position.set(-3.3927, 3.18774, -4.61366);
     planeMesh.receiveShadow = true;
     planeMesh.castShadow = true;
-    planeMesh.name = "whiteboard";
-    this.scene.add(planeMesh);
+    planeMesh.name = "whiteboardCanvas";
+    this.model.mesh.add(planeMesh);
+    /* this.scene.add(this.whiteboardGroup); */
 
     //const drawingCanvas = document.getElementById("drawing-canvas");
     const drawingCanvas = document.getElementById("drawing-canvas");
     this.drawingContext = drawingCanvas.getContext("2d");
-    this.drawingContext.lineWidth = 13;
+    this.drawingContext.lineWidth = 8;
     this.drawingContext.imageSmoothingQuality = "high";
     // draw white background
 
@@ -46,18 +70,11 @@ export default class Whiteboard {
 
     // set canvas as material.map (this could be done to any map, bump, displacement etc.)
     drawingCanvas.needsUpdate = true;
-    this.whiteboardMaterial.map = new THREE.CanvasTexture(drawingCanvas);
-    this.whiteboardMaterial.map.needsUpdate = true;
+    const canvasTexture = new THREE.CanvasTexture(drawingCanvas);
+    canvasTexture.minFilter = THREE.LinearMipmapNearestFilter; // O podrías usar THREE.LinearMipmapNearestFilter según tus necesidades
 
-    // Configurar eventos del mouse
-    document.addEventListener("mousedown", this.onMouseDown, false);
-    document.addEventListener(
-      "mousemove",
-      this.throttle(this.onMouseMove, 15),
-      false
-    );
-    document.addEventListener("mouseup", this.onMouseUp, false);
-    document.addEventListener("keydown", this.onKeyDown, false);
+    this.whiteboardMaterial.map = canvasTexture;
+    this.whiteboardMaterial.map.needsUpdate = true;
   }
 
   throttle(func, delay) {
@@ -73,6 +90,10 @@ export default class Whiteboard {
   }
 
   update() {
+    if (!this.isActive) {
+      return;
+    }
+    console.log("sad", this.mouse);
     this.raycaster.setFromCamera(this.mouse, this.camera.instance);
     const intersects = this.raycaster.intersectObjects(
       this.scene.children,
@@ -97,10 +118,15 @@ export default class Whiteboard {
   }
 
   onMouseDown = () => {
+    console.log(
+      this.objectRaycasted,
+      this.objectRaycasted.uv,
+      this.objectRaycasted.object.name
+    );
     if (
       this.objectRaycasted &&
       this.objectRaycasted.uv &&
-      this.objectRaycasted.object.name == "whiteboard"
+      this.objectRaycasted.object.name == "whiteboardCanvas"
     ) {
       this.drawing = true;
       this.drawStartPos.set(
@@ -111,16 +137,16 @@ export default class Whiteboard {
   };
 
   onMouseMove = (event) => {
-    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    console.log("movbin");
     if (
       this.objectRaycasted &&
       this.objectRaycasted.object &&
-      this.objectRaycasted.object.name == "whiteboard"
+      this.objectRaycasted.object.name == "whiteboardCanvas"
     ) {
+      this.experience.navigation.orbitControls.enabled = false;
       this.webglElement.style.pointerEvents = "none";
     } else {
-      // TODO: Activar esto en cuanto seleccionemos whiteboard
+      this.experience.navigation.orbitControls.enabled = true;
       this.webglElement.style.pointerEvents = "auto";
     }
 
@@ -128,7 +154,7 @@ export default class Whiteboard {
       this.drawing &&
       this.objectRaycasted &&
       this.objectRaycasted.uv &&
-      this.objectRaycasted.object.name == "whiteboard"
+      this.objectRaycasted.object.name == "whiteboardCanvas"
     ) {
       this.draw(
         this.objectRaycasted.uv.x * 2048,
@@ -143,6 +169,26 @@ export default class Whiteboard {
     this.drawing = false;
     this.drawingContext.closePath();
   };
+
+  activateControls() {
+    // Configurar eventos del mouse
+    window.addEventListener("mousedown", this.onMouseDown, false);
+    window.addEventListener("mousemove", this.throttledMouseMove, false);
+    window.addEventListener("mouseup", this.onMouseUp, false);
+    window.addEventListener("keydown", this.onKeyDown, false);
+    this.isActive = true;
+  }
+
+  deactivateControls() {
+    // Configurar eventos del mouse
+    window.removeEventListener("mousedown", this.onMouseDown, false);
+    window.removeEventListener("mousemove", this.throttledMouseMove, false);
+    window.removeEventListener("mouseup", this.onMouseUp, false);
+    window.removeEventListener("keydown", this.onKeyDown, false);
+    this.isActive = false;
+  }
+
+  throttledMouseMove = this.throttle(this.onMouseMove, 15);
 
   onKeyDown = (event) => {
     if (event.key == "0") {
