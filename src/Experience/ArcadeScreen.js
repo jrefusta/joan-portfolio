@@ -42,7 +42,7 @@ export default class ArcadeScreen {
 
     const iframe = document.createElement("iframe");
 
-    iframe.src = "http://192.168.1.72:8081/";
+    iframe.src = "https://joan-arcade-machine.vercel.app";
     iframe.style.width = this.screenSize.width + "px";
     iframe.style.height = this.screenSize.height + "px";
     iframe.style.padding = 16 + "px";
