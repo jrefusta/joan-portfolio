@@ -34,33 +34,24 @@ class RubiksCube {
     this.raycaster = this.experience.raycaster;
     this.setRubiksCube();
   }
+
   setRubiksCube() {
     const object = this.resources.items.rubiksCube.scene;
+    object.traverse((child) => {
+      if (child.isMesh) {
+        child.material.envMap = this.resources.items.cubeTexture;
+      }
+    });
     for (let i = object.children.length - 1; i >= 0; i--) {
       const currentChild = object.children[i];
-      if (!currentChild.isMesh) {
-        for (var j = 0; j < currentChild.children.length; j++) {
-          let currentMesh = currentChild.children[j];
-          /* if (currentMesh.isMesh) {
-              currentMesh.material.envMap = envMapo;
-            } */
-        }
-      }
       const currentInfo = cubeInfo[i];
-      currentChild.row = currentInfo.row;
-      currentChild.col = currentInfo.col;
-      currentChild.depth = currentInfo.depth;
-      currentChild.colors = currentInfo.colors;
+      Object.assign(currentChild, currentInfo);
       currentChild.isRubik = true;
-
-      currentChild.position.set(
-        this.position.x,
-        this.position.y,
-        this.position.z
-      );
+      currentChild.position.copy(this.position);
       this.rubikCubes.push(currentChild);
       this.rubikGroup.add(currentChild);
     }
+
     this.rubikGroup.position.set(
       this.position.x,
       this.position.y,
@@ -72,24 +63,12 @@ class RubiksCube {
     this.scene.add(this.rubikGroup);
 
     const light = new THREE.AmbientLight(0xffffff, 1);
-    const lightD = new THREE.DirectionalLight(0xffffff);
+    const lightD = new THREE.DirectionalLight(0xffffff, 1);
     lightD.position.y = 40;
-    lightD.position.z = 5;
-    5;
+    lightD.position.z = 40;
+    lightD.position.x = 40;
     this.scene.add(light);
     this.scene.add(lightD);
-    //});
-    /*  let numMap = 0;
-    const cubeTextureLoader = new THREE.CubeTextureLoader();
-    let envMapo = cubeTextureLoader.load([
-      "/environmentMaps/" + numMap + "/px.jpg",
-      "/environmentMaps/" + numMap + "/nx.jpg",
-      "/environmentMaps/" + numMap + "/py.jpg",
-      "/environmentMaps/" + numMap + "/ny.jpg",
-      "/environmentMaps/" + numMap + "/pz.jpg",
-      "/environmentMaps/" + numMap + "/nz.jpg",
-    ]); */
-
     this.startNextMove();
   }
 
@@ -152,13 +131,6 @@ class RubiksCube {
   }
 
   resetOriginalConfig() {
-    this.rubikGroup.traverse((child) => {
-      if (child.isMesh) {
-        child.renderOrder = 0;
-        child.material.transparent = false;
-        child.material.depthTest = true;
-      }
-    });
     this.rubikGroup.children.forEach((child) => {
       gsap.to(child.position, {
         x: this.originalPos.x,
@@ -166,6 +138,15 @@ class RubiksCube {
         z: this.originalPos.z,
         duration: 1,
         ease: "sine.out",
+        onComplete: () => {
+          this.rubikGroup.traverse((child) => {
+            if (child.isMesh) {
+              child.renderOrder = 0;
+              child.material.transparent = false;
+              child.material.depthTest = true;
+            }
+          });
+        },
       });
     });
     gsap.to(this.rubikGroup.scale, {
@@ -221,7 +202,7 @@ class RubiksCube {
       );
     }
   };
-  onPointerUp = (event) => {
+  onPointerUp = () => {
     if (this.draggingg) {
       const currentClickPosition = new THREE.Vector2(
         this.pointer.x,
@@ -231,6 +212,9 @@ class RubiksCube {
         currentClickPosition.x - this.firstClickPosition.x,
         currentClickPosition.y - this.firstClickPosition.y
       );
+      if (distanceVector.x == 0 && distanceVector.y == 0) {
+        return;
+      }
       const verticalMovement =
         Math.abs(distanceVector.x) <= Math.abs(distanceVector.y);
       const isPositiveX = distanceVector.x >= 0;
@@ -241,97 +225,85 @@ class RubiksCube {
 
       if (verticalMovement) {
         if (isLayerX) {
-          if (this.objectClicked.depth !== 2) {
-            this.movementsStack.push({
-              layer: "depth",
-              number: this.objectClicked.depth,
-              orientation:
-                this.firstClickNormal.sign === 0
-                  ? isPositiveY
-                    ? 0
-                    : 1
-                  : isPositiveY
-                  ? 1
-                  : 0,
-            });
-          }
+          this.movementsStack.push({
+            layer: "depth",
+            number: this.objectClicked.depth,
+            orientation:
+              this.firstClickNormal.sign === 0
+                ? isPositiveY
+                  ? 0
+                  : 1
+                : isPositiveY
+                ? 1
+                : 0,
+          });
         } else if (isLayerY) {
-          if (this.objectClicked.col !== 2) {
-            this.movementsStack.push({
-              layer: "col",
-              number: this.objectClicked.col,
-              orientation:
-                this.firstClickNormal.sign === 0
-                  ? isPositiveY
-                    ? 1
-                    : 0
-                  : isPositiveY
-                  ? 0
-                  : 1,
-            });
-          }
+          this.movementsStack.push({
+            layer: "col",
+            number: this.objectClicked.col,
+            orientation:
+              this.firstClickNormal.sign === 0
+                ? isPositiveY
+                  ? 1
+                  : 0
+                : isPositiveY
+                ? 0
+                : 1,
+          });
         } else if (isLayerZ) {
-          if (this.objectClicked.col !== 2) {
-            this.movementsStack.push({
-              layer: "col",
-              number: this.objectClicked.col,
-              orientation:
-                this.firstClickNormal.sign === 0
-                  ? isPositiveY
-                    ? 1
-                    : 0
-                  : isPositiveY
-                  ? 0
-                  : 1,
-            });
-          }
+          this.movementsStack.push({
+            layer: "col",
+            number: this.objectClicked.col,
+            orientation:
+              this.firstClickNormal.sign === 0
+                ? isPositiveY
+                  ? 1
+                  : 0
+                : isPositiveY
+                ? 0
+                : 1,
+          });
         }
       } else {
         if (isLayerX) {
-          if (this.objectClicked.row !== 2) {
-            this.movementsStack.push({
-              layer: "row",
-              number: this.objectClicked.row,
-              orientation:
-                this.firstClickNormal.sign === 0
-                  ? isPositiveX
-                    ? 1
-                    : 0
-                  : isPositiveX
+          this.movementsStack.push({
+            layer: "row",
+            number: this.objectClicked.row,
+            orientation:
+              this.firstClickNormal.sign === 0
+                ? isPositiveX
                   ? 1
-                  : 0,
-            });
-          }
+                  : 0
+                : isPositiveX
+                ? 1
+                : 0,
+          });
         } else if (isLayerY) {
-          if (this.objectClicked.depth !== 2) {
-            this.movementsStack.push({
-              layer: "depth",
-              number: this.objectClicked.depth,
-              orientation:
-                this.firstClickNormal.sign === 0
-                  ? isPositiveX
-                    ? 1
-                    : 0
-                  : isPositiveX
-                  ? 0
-                  : 1,
-            });
-          }
-        } else if (isLayerZ) {
-          if (this.objectClicked.row !== 2) {
-            this.movementsStack.push({
-              layer: "row",
-              number: this.objectClicked.row,
-              orientation:
-                this.firstClickNormal.sign === 0
-                  ? isPositiveX
-                    ? 1
-                    : 0
-                  : isPositiveX
+          this.movementsStack.push({
+            layer: "depth",
+            number: this.objectClicked.depth,
+            orientation:
+              this.firstClickNormal.sign === 0
+                ? isPositiveX
                   ? 1
-                  : 0,
-            });
-          }
+                  : 0
+                : isPositiveX
+                ? 0
+                : 1,
+          });
+        } else if (isLayerZ) {
+          this.movementsStack.push({
+            layer: "row",
+            number: this.objectClicked.row,
+            orientation:
+              this.firstClickNormal.sign === 0
+                ? isPositiveX
+                  ? 1
+                  : 0
+                : isPositiveX
+                ? 1
+                : 0,
+          });
         }
       }
 
@@ -388,6 +360,7 @@ class RubiksCube {
     this.allCubies.sort((a, b) => a.name.localeCompare(b.name));
     this.checkIfCubeIsSolved(this.allCubies);
   }
+
   checkCubieEquality(obj1, obj2) {
     return (
       obj1.col === obj2.col &&
@@ -407,11 +380,11 @@ class RubiksCube {
     return true;
   }
   checkIfCubeIsSolved(allCubies) {
-    const sonIgualesTodos = allCubies.every((element, i) =>
-      this.checkCubieEquality(element, cubeInfo[i])
+    const isSolution = allCubies.every((element, index) =>
+      this.checkCubieEquality(element, cubeInfo[index])
     );
 
-    if (sonIgualesTodos) {
+    if (isSolution) {
       console.log("SOLUCION!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
   }
@@ -438,8 +411,8 @@ class RubiksCube {
 
   updateColors(colors, order) {
     const originalColors = { ...colors };
-    order.forEach((currentColor, i) => {
-      const nextColor = order[(i + 1) % order.length];
+    order.forEach((currentColor, index) => {
+      const nextColor = order[(index + 1) % order.length];
       colors[nextColor] = originalColors[currentColor];
     });
     return colors;

@@ -7,9 +7,11 @@ import vertexShader from "./shaders/screenEffect/vertex.glsl";
 export default class ArcadeScreen {
   constructor() {
     this.experience = new Experience();
+    this.webglElement = this.experience.webglElement;
     this.cssScene = this.experience.cssScene;
     this.scene = this.experience.scene;
     this.resources = this.experience.resources;
+    this.mouse = this.experience.mouse;
     this.screenSize = new THREE.Vector2(1006.986, 1210.1182617331252);
     this.model = {};
     this.setModel();
@@ -122,17 +124,36 @@ export default class ArcadeScreen {
       "*"
     );
   };
+
   handleKeyUpParent = (event) => {
     this.iframeWindow.postMessage({ type: "keyUpParent", key: event.key }, "*");
+  };
+
+  onMouseMove = (event) => {
+    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    if (
+      this.objectRaycasted &&
+      this.objectRaycasted.object &&
+      this.objectRaycasted.object.name == "arcadeMachine"
+    ) {
+      this.experience.navigation.orbitControls.enabled = false;
+      this.webglElement.style.pointerEvents = "none";
+    } else {
+      this.experience.navigation.orbitControls.enabled = true;
+      this.webglElement.style.pointerEvents = "auto";
+    }
   };
 
   activateControls() {
     window.addEventListener("keydown", this.handleKeyDownParent);
     window.addEventListener("keyup", this.handleKeyUpParent);
+    window.addEventListener("pointermove", this.onMouseMove);
   }
   deactivateControls() {
     window.removeEventListener("keydown", this.handleKeyDownParent);
     window.removeEventListener("keyup", this.handleKeyUpParent);
+    window.removeEventListener("pointermove", this.onMouseMove);
   }
   update() {}
 }

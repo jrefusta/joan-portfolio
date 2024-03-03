@@ -95,12 +95,12 @@ export default class RightMonitorScreen {
 
   activateControls() {
     // Configurar eventos del mouse
-    window.addEventListener("mousemove", this.onMouseMove, false);
+    window.addEventListener("pointermove", this.onMouseMove, false);
     this.isActive = true;
   }
   deactivateControls() {
     // Configurar eventos del mouse
-    window.removeEventListener("mousemove", this.onMouseMove, false);
+    window.removeEventListener("pointermove", this.onMouseMove, false);
     this.isActive = false;
   }
 

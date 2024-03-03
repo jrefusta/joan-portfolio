@@ -53,20 +53,6 @@ export default class Experience {
     this.update();
   }
 
-  // static getInstance(_options = {})
-  // {
-  //     console.log(Experience.instance)
-  //     if(Experience.instance)
-  //     {
-  //         return Experience.instance
-  //     }
-
-  //     console.log('create')
-  //     Experience.instance = new Experience(_options)
-
-  //     return Experience.instance
-  // }
-
   setConfig() {
     this.config = {};
 

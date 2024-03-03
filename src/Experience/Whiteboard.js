@@ -93,7 +93,6 @@ export default class Whiteboard {
     if (!this.isActive) {
       return;
     }
-    console.log("sad", this.mouse);
     this.raycaster.setFromCamera(this.mouse, this.camera.instance);
     const intersects = this.raycaster.intersectObjects(
       this.scene.children,
@@ -118,11 +117,6 @@ export default class Whiteboard {
   }
 
   onMouseDown = () => {
-    console.log(
-      this.objectRaycasted,
-      this.objectRaycasted.uv,
-      this.objectRaycasted.object.name
-    );
     if (
       this.objectRaycasted &&
       this.objectRaycasted.uv &&
@@ -136,8 +130,7 @@ export default class Whiteboard {
     }
   };
 
-  onMouseMove = (event) => {
-    console.log("movbin");
+  onMouseMove = () => {
     if (
       this.objectRaycasted &&
       this.objectRaycasted.object &&
@@ -172,18 +165,18 @@ export default class Whiteboard {
 
   activateControls() {
     // Configurar eventos del mouse
-    window.addEventListener("mousedown", this.onMouseDown, false);
-    window.addEventListener("mousemove", this.throttledMouseMove, false);
-    window.addEventListener("mouseup", this.onMouseUp, false);
+    window.addEventListener("pointerdown", this.onMouseDown, false);
+    window.addEventListener("pointermove", this.throttledMouseMove, false);
+    window.addEventListener("pointerup", this.onMouseUp, false);
     window.addEventListener("keydown", this.onKeyDown, false);
     this.isActive = true;
   }
 
   deactivateControls() {
     // Configurar eventos del mouse
-    window.removeEventListener("mousedown", this.onMouseDown, false);
-    window.removeEventListener("mousemove", this.throttledMouseMove, false);
-    window.removeEventListener("mouseup", this.onMouseUp, false);
+    window.removeEventListener("pointerdown", this.onMouseDown, false);
+    window.removeEventListener("pointermove", this.throttledMouseMove, false);
+    window.removeEventListener("pointerup", this.onMouseUp, false);
     window.removeEventListener("keydown", this.onKeyDown, false);
     this.isActive = false;
   }

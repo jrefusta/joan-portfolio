@@ -1,4 +1,9 @@
+@font-face {
+  font-family: "Saeada";
+  src: url("../static/assets/fonts/LTSaeada-Black.otf") format("opentype");
+}
 * {
+  font-family: Saeada, sans-serif;
   margin: 0;
   padding: 0;
 }
@@ -32,4 +37,37 @@ body {
 #drawing-canvas {
   background-color: #ffffff;
   display: none;
+}
+
+.banner {
+  display: flex;
+  background-color: #0a3362;
+  color: #eda72d;
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 1.5vw;
+  position: fixed;
+  top: 0px;
+  height: 60px;
+  left: 0;
+  width: 100vw;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around; /* Alinear los elementos horizontalmente */
+
+  z-index: 9999;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  transition: top 0.5s ease-in-out;
+}
+
+.banner-link {
+  text-align: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 1vw; /* Añade margen entre los enlaces */
+  transition: 0.2s ease-in-out;
+}
+
+.banner-link:hover {
+  font-size: 1.75vw;
 }

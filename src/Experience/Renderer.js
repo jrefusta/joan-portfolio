@@ -32,7 +32,7 @@ export default class Renderer {
 
   setInstance() {
     this.clearColor = new THREE.Color(0x072446).convertSRGBToLinear();
-
+    //this.clearColor = new THREE.Color(0xeda72d).convertSRGBToLinear();
     // Renderer
     this.instance = new THREE.WebGLRenderer({
       alpha: false,
@@ -132,8 +132,6 @@ export default class Renderer {
     this.gammaCorrectionShader = new ShaderPass(GammaCorrectionShader);
     this.postProcess.composer.addPass(this.postProcess.renderPass);
     this.postProcess.composer.addPass(this.postProcess.outlinePass);
-    console.log(this.postProcess.composer.renderTarget1.texture.colorSpace);
-    console.log(this.postProcess.composer.renderTarget2.texture.colorSpace);
     this.postProcess.composer.addPass(this.gammaCorrectionShader);
     if (
       this.instance.getPixelRatio() === 1 &&

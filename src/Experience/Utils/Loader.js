@@ -5,6 +5,7 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
+import { CubeTextureLoader } from "three";
 
 export default class Resources extends EventEmitter {
   /**
@@ -44,6 +45,16 @@ export default class Resources extends EventEmitter {
         });
 
         image.src = _resource.source;
+      },
+    });
+    // CubeTexture
+    this.loaders.push({
+      extensions: ["cubeTexture"],
+      action: (_resource) => {
+        const cubeTextureLoader = new CubeTextureLoader();
+        cubeTextureLoader.load(_resource.source, (_data) => {
+          this.fileLoadEnd(_resource, _data);
+        });
       },
     });
 
@@ -121,21 +132,31 @@ export default class Resources extends EventEmitter {
   load(_resources = []) {
     for (const _resource of _resources) {
       this.toLoad++;
-      const extensionMatch = _resource.source.match(/\.([a-zA-Z0-9]+)$/);
 
-      if (typeof extensionMatch[1] !== "undefined") {
-        const extension = extensionMatch[1];
-        const loader = this.loaders.find((_loader) =>
-          _loader.extensions.find((_extension) => _extension === extension)
-        );
-
-        if (loader) {
-          loader.action(_resource);
+      const loader = this.loaders.find((_loader) => {
+        if (_resource.type === "cubeTexture") {
+          return _loader.extensions.includes("cubeTexture");
         } else {
-          console.warn(`Cannot found loader for ${_resource}`);
+          const extensionMatch = _resource.source.match(/\.([a-zA-Z0-9]+)$/);
+          const extension = extensionMatch ? extensionMatch[1] : null;
+          return extension && _loader.extensions.includes(extension);
         }
+      });
+
+      if (loader) {
+        loader.action(_resource);
       } else {
-        console.warn(`Cannot found extension of ${_resource}`);
+        if (_resource.type === "cubeTexture") {
+          console.warn("Cannot found loader for cubeTexture");
+        } else {
+          const extensionMatch = _resource.source.match(/\.([a-zA-Z0-9]+)$/);
+          const extension = extensionMatch ? extensionMatch[1] : null;
+          if (extension) {
+            console.warn(`Cannot found loader for ${extension}`);
+          } else {
+            console.warn("Cannot found extension");
+          }
+        }
       }
     }
   }
