@@ -54,7 +54,7 @@ export default class Confetti {
     this.isExploded = true;
     setTimeout(() => {
       this.destroy();
-    }, 5000);
+    }, 2000);
     for (var i = 0; i < this.amount; i++) {
       const info = {};
       const destination = {};

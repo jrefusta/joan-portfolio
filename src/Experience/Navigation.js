@@ -86,7 +86,10 @@ export default class Navigation {
       ) {
         this.bringSceneBack();
         this.experience.world.rubiksCube.resetOriginalConfig();
-      } else if (this.currentStage !== null) {
+      } else if (
+        this.currentStage !== null &&
+        this.currentStage !== "rubikGroup"
+      ) {
         this.orbitControls.enabled = false;
         this.moveCamera(-23, 17, 23, 1);
         this.rotateCamera(
@@ -167,7 +170,8 @@ export default class Navigation {
     if (
       this.currentStage == null &&
       !this.isCameraMoving &&
-      this.experience.world?.rubiksCube?.isPlaced
+      this.experience.world?.rubiksCube?.isPlaced &&
+      !this.experience.world?.confetti?.isExploded
     ) {
       this.checkIntersection();
     } else {
@@ -192,7 +196,7 @@ export default class Navigation {
   }
 
   flyToPosition = (key) => {
-    if (key !== "rubikGroup" && this.sceneResult) {
+    if (key !== "rubikGroup" && this.currentStage == "rubikGroup") {
       this.bringSceneBack();
       this.experience.world.rubiksCube.resetOriginalConfig();
     }
@@ -348,6 +352,7 @@ export default class Navigation {
   }
 
   shrinkScene(scene) {
+    console.log(scene.children);
     const originalPos = [];
     const originalScale = [];
     scene.children.forEach((child) => {
@@ -383,6 +388,7 @@ export default class Navigation {
   }
 
   expandScene(scene, result) {
+    console.log(scene.children);
     scene.children.forEach((child, i) => {
       if (
         child.type != "PerspectiveCamera" &&

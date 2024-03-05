@@ -37,11 +37,8 @@ export default class CoffeeSteam {
     this.planeGeom = new THREE.PlaneGeometry(0.15, 0.6, 16, 64);
     this.model.mesh = new THREE.Mesh(this.planeGeom, this.model.material);
     this.model.mesh.position.set(0.230979, 2.3, -3.64951);
-    this.model.mesh2 = new THREE.Mesh(this.planeGeom, this.model.material);
-    this.model.mesh2.rotateY(-Math.PI / 2);
-    this.model.mesh2.position.set(0.234979, 2.1, -3.64951);
+    this.model.mesh.name = "coffeeSteam";
     this.scene.add(this.model.mesh);
-    //this.scene.add(this.model.mesh2);
   };
 
   update = () => {
