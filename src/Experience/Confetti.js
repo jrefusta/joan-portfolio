@@ -32,6 +32,7 @@ export default class Confetti {
       this.material,
       this.amount
     );
+    this.particles.visible = false;
     this.scene.add(this.particles);
   }
 
@@ -49,6 +50,7 @@ export default class Confetti {
   }
 
   explode() {
+    this.particles.visible = true;
     this.isExploded = true;
     setTimeout(() => {
       this.destroy();
