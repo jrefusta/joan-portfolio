@@ -22,7 +22,7 @@ export default [
 
       {
         name: "topChairModel",
-        source: "/assets/topChairModel.glb",
+        source: "/assets/topChair.glb",
         type: "model",
       },
 
@@ -118,6 +118,11 @@ export default [
       {
         name: "_baked3",
         source: "/assets/_baked3_.ktx2",
+        type: "texture",
+      },
+      {
+        name: "texture_paint",
+        source: "/assets/texture_paint.png",
         type: "texture",
       },
       { name: "_roomModel", source: "/assets/_room.glb" },

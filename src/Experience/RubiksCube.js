@@ -31,6 +31,8 @@ class RubiksCube {
     this.allCubies = [];
     this.isActive = false;
     this.pointer = new THREE.Vector2();
+    this.duration = 0.0;
+    this.isPlaced = true;
     this.raycaster = this.experience.raycaster;
     this.setRubiksCube();
   }
@@ -51,16 +53,22 @@ class RubiksCube {
       this.rubikCubes.push(currentChild);
       this.rubikGroup.add(currentChild);
     }
-
+    this.rubikGroup.name = "rubikGroup";
+    this.scene.add(this.rubikGroup);
+    this.movementsStack.push({
+      layer: "col",
+      number: 2,
+      orientation: 1,
+    });
+    this.startNextMove();
+    this.hasBeenSolved = false;
     this.rubikGroup.position.set(
       this.position.x,
       this.position.y,
       this.position.z
     );
     this.rubikGroup.scale.set(this.scale, this.scale, this.scale);
-    this.rubikGroup.name = "rubikGroup";
     this.rubikGroup.rotateY((-152.484 * Math.PI) / 180);
-    this.scene.add(this.rubikGroup);
 
     const light = new THREE.AmbientLight(0xffffff, 1);
     const lightD = new THREE.DirectionalLight(0xffffff, 1);
@@ -69,10 +77,10 @@ class RubiksCube {
     lightD.position.x = 40;
     this.scene.add(light);
     this.scene.add(lightD);
-    this.startNextMove();
   }
 
   activateControls() {
+    this.duration = 0.5;
     window.addEventListener("pointermove", this.onPointerMove);
     window.addEventListener("pointerdown", this.onPointerDown);
     window.addEventListener("pointerup", this.onPointerUp);
@@ -80,6 +88,7 @@ class RubiksCube {
   }
 
   deactivateControls() {
+    this.duration = 0.0;
     window.removeEventListener("pointermove", this.onPointerMove);
     window.removeEventListener("pointerdown", this.onPointerDown);
     window.removeEventListener("pointerup", this.onPointerUp);
@@ -87,6 +96,7 @@ class RubiksCube {
   }
 
   reubicateCube() {
+    this.isPlaced = false;
     this.rubikGroup.traverse((child) => {
       if (child.isMesh) {
         child.renderOrder = 999;
@@ -139,6 +149,7 @@ class RubiksCube {
         duration: 1,
         ease: "sine.out",
         onComplete: () => {
+          this.isPlaced = true;
           this.rubikGroup.traverse((child) => {
             if (child.isMesh) {
               child.renderOrder = 0;
@@ -169,6 +180,60 @@ class RubiksCube {
       z: Math.PI,
       duration: 1,
       ease: "sine.out",
+    });
+    this.position = new THREE.Vector3(
+      this.originalPos.x,
+      this.originalPos.y,
+      this.originalPos.z
+    );
+  }
+
+  winAnimation() {
+    this.rubikGroup.children.forEach((child) => {
+      gsap.to(child.position, {
+        x: this.originalPos.x,
+        y: this.originalPos.y,
+        z: this.originalPos.z,
+        duration: 2,
+        ease: "elastic.in",
+        onComplete: () => {
+          this.isPlaced = true;
+          this.rubikGroup.traverse((child) => {
+            if (child.isMesh) {
+              child.renderOrder = 0;
+              child.material.transparent = false;
+              child.material.depthTest = true;
+            }
+          });
+        },
+      });
+    });
+    gsap.to(this.rubikGroup.scale, {
+      x: this.originalScale,
+      y: this.originalScale,
+      z: this.originalScale,
+      duration: 2,
+      ease: "circ.out",
+    });
+    gsap.to(this.rubikGroup.position, {
+      x: this.originalPos.x,
+      y: this.originalPos.y,
+      z: this.originalPos.z,
+      duration: 2,
+      ease: "back.in",
+    });
+    gsap.to(this.rubikGroup.rotation, {
+      x: Math.PI * 3,
+      y: -0.48024479697875944 + Math.PI * 6,
+      z: Math.PI * 3,
+      duration: 2.2,
+      ease: "back.in",
+      onComplete: () => {
+        this.rubikGroup.rotation.x = Math.PI;
+        this.rubikGroup.rotation.y = -0.48024479697875944;
+        this.rubikGroup.rotation.z = Math.PI;
+        this.experience.world.confetti.explode();
+      },
     });
     this.position = new THREE.Vector3(
       this.originalPos.x,
@@ -379,15 +444,19 @@ class RubiksCube {
     }
     return true;
   }
+
   checkIfCubeIsSolved(allCubies) {
     const isSolution = allCubies.every((element, index) =>
       this.checkCubieEquality(element, cubeInfo[index])
     );
 
-    if (isSolution) {
-      console.log("SOLUCION!!!!!!!!!!!!!!!!!!!!!!!!!");
+    if (isSolution && !this.hasBeenSolved) {
+      this.experience.navigation.bringSceneBack();
+      this.winAnimation();
+      this.hasBeenSolved = true;
     }
   }
+
   checkAllCubies(object) {
     if (object.hasOwnProperty("colors")) {
       this.allCubies.push(object);
@@ -544,11 +613,10 @@ class RubiksCube {
         const targetRotation =
           this.pivot.rotation[this.layerToRotate] +
           (this.sideToRotate * Math.PI) / 2;
-        const duration = 0.5;
         const easingFunction = "power1.inOut";
         gsap.to(this.pivot.rotation, {
           [this.layerToRotate]: targetRotation,
-          duration: duration,
+          duration: this.duration,
           ease: easingFunction,
           onComplete: () => {
             this.moveComplete();

@@ -18,7 +18,7 @@ export default class ArcadeScreen {
     this.setArcadeScreen();
   }
 
-  setModel() {
+  setModel = () => {
     this.model.arcadeMachineModel = this.resources.items.arcadeMachine.scene;
 
     this.model.bakedTexture = this.resources.items._baked2;
@@ -34,9 +34,9 @@ export default class ArcadeScreen {
     });
     this.model.arcadeMachineModel.name = "arcadeMachine";
     this.scene.add(this.model.arcadeMachineModel);
-  }
+  };
 
-  setArcadeScreen() {
+  setArcadeScreen = () => {
     const container = document.createElement("div");
     container.style.width = this.screenSize.width + "px";
     container.style.height = this.screenSize.height + "px";
@@ -116,7 +116,7 @@ export default class ArcadeScreen {
 
     // Add to gl scene
     this.model.arcadeMachineModel.add(this.model.screen);
-  }
+  };
 
   handleKeyDownParent = (event) => {
     this.iframeWindow.postMessage(
@@ -145,15 +145,14 @@ export default class ArcadeScreen {
     }
   };
 
-  activateControls() {
+  activateControls = () => {
     window.addEventListener("keydown", this.handleKeyDownParent);
     window.addEventListener("keyup", this.handleKeyUpParent);
     window.addEventListener("pointermove", this.onMouseMove);
-  }
-  deactivateControls() {
+  };
+  deactivateControls = () => {
     window.removeEventListener("keydown", this.handleKeyDownParent);
     window.removeEventListener("keyup", this.handleKeyUpParent);
     window.removeEventListener("pointermove", this.onMouseMove);
-  }
-  update() {}
+  };
 }

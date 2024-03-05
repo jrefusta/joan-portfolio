@@ -11,6 +11,7 @@ import LeftMonitorScreen from "./LeftMonitorScreen.js";
 import RightMonitorScreen from "./RightMonitorScreen.js";
 import RubiksCube from "./RubiksCube.js";
 import Skybox from "./Skybox.js";
+import Confetti from "./Confetti.js";
 
 export default class World {
   constructor(_options) {
@@ -27,15 +28,11 @@ export default class World {
         this.setArcadeScreen();
         this.setLeftMonitorScreen();
         this.setRightMonitorScreen();
-        this.setRubiksCube();
+        this.setTopChair();
         this.setSkybox();
-        //this.setGoogleLeds()
-        //this.setLoupedeckButtons()
+        this.setConfetti();
         this.setCoffeeSteam();
-        //this.setTopChair()
-        //this.setElgatoLight()
-        //this.setBouncingLogo()
-        //this.setScreens()
+        this.setRubiksCube();
       }
     });
   }
@@ -48,20 +45,11 @@ export default class World {
     this.rubiksCube = new RubiksCube(
       new THREE.Vector3(-0.67868, 1.499, -3.92849),
       0.021432
-      //new THREE.Vector3(0, 2, 0)
     );
   }
 
   setSkybox() {
     this.skybox = new Skybox();
-  }
-
-  setGoogleLeds() {
-    this.googleLeds = new GoogleLeds();
-  }
-
-  setLoupedeckButtons() {
-    this.loupedeckButtons = new LoupedeckButtons();
   }
 
   setCoffeeSteam() {
@@ -72,12 +60,8 @@ export default class World {
     this.topChair = new TopChair();
   }
 
-  setElgatoLight() {
-    this.elgatoLight = new ElgatoLight();
-  }
-
-  setBouncingLogo() {
-    this.bouncingLogo = new BouncingLogo();
+  setConfetti() {
+    this.confetti = new Confetti();
   }
 
   setWhiteboard() {
@@ -87,43 +71,29 @@ export default class World {
   setCarpet() {
     this.carpet = new Carpet();
   }
+
   setArcadeScreen() {
     this.arcadeScreen = new ArcadeScreen();
   }
+
   setLeftMonitorScreen() {
     this.leftMonitorScreen = new LeftMonitorScreen();
   }
+
   setRightMonitorScreen() {
     this.rightMonitorScreen = new RightMonitorScreen();
-  }
-
-  setScreens() {
-    this.pcScreen = new Screen(
-      this.resources.items.pcScreenModel.scene.children[0],
-      "/assets/videoPortfolio.mp4"
-    );
-    this.macScreen = new Screen(
-      this.resources.items.macScreenModel.scene.children[0],
-      "/assets/videoStream.mp4"
-    );
   }
 
   resize() {}
 
   update() {
-    if (this.googleLeds) this.googleLeds.update();
-
-    if (this.loupedeckButtons) this.loupedeckButtons.update();
-
     if (this.coffeeSteam) this.coffeeSteam.update();
-
     if (this.topChair) this.topChair.update();
     if (this.rubiksCube) this.rubiksCube.update();
     if (this.skybox) this.skybox.update();
     if (this.leftMonitorScreen) this.leftMonitorScreen.update();
     if (this.rightMonitorScreen) this.rightMonitorScreen.update();
-
-    if (this.bouncingLogo) this.bouncingLogo.update();
+    if (this.confetti) this.confetti.update();
     if (this.whiteboard) this.whiteboard.update();
   }
 

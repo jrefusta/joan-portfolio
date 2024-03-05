@@ -16,7 +16,7 @@ export default class Carpet {
   }
 
   setCarpet() {
-    const shellCount = 64;
+    const shellCount = 32;
     for (let i = 0; i < shellCount; ++i) {
       // Crear el ShaderMaterial
       const shaderMaterial = new THREE.ShaderMaterial({
@@ -43,14 +43,14 @@ export default class Carpet {
       const planeGeom = new THREE.PlaneGeometry(100, 100);
       const planeMesh = new THREE.Mesh(planeGeom, shaderMaterial);
       planeMesh.rotation.x = -Math.PI / 2;
-      planeMesh.position.y = -10 + i * 0.05;
+      planeMesh.position.y = -10 + i * 0.1;
       planeMesh.receiveShadow = true;
       planeMesh.castShadow = true;
       this.carpetGroup.add(planeMesh);
     }
     this.carpetGroup.name = "Carpet";
     this.carpetGroup.scale.set(0.0355, 0.0355, 0.0355);
-    this.carpetGroup.position.set(-2.61408, 0.36, -0.904327);
+    this.carpetGroup.position.set(-2.61408, 0.377, -0.904327);
     this.scene.add(this.carpetGroup);
   }
 }

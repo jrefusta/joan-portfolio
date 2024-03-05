@@ -43,31 +43,101 @@ body {
   display: flex;
   background-color: #0a3362;
   color: #eda72d;
-  padding: 10px 20px;
+  padding: 10px 0px;
   text-align: center;
   font-size: 1.5vw;
-  position: fixed;
+  position: absolute;
   top: 0px;
   height: 60px;
   left: 0;
   width: 100vw;
   flex-direction: row;
   align-items: center;
-  justify-content: space-around; /* Alinear los elementos horizontalmente */
-
-  z-index: 9999;
+  justify-content: space-around;
+  z-index: 1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
   transition: top 0.5s ease-in-out;
 }
 
 .banner-link {
   text-align: center;
+  user-select: none;
   justify-content: center;
   cursor: pointer;
-  margin: 0 1vw; /* Añade margen entre los enlaces */
+  margin: 0 1vw;
   transition: 0.2s ease-in-out;
 }
 
 .banner-link:hover {
   font-size: 1.75vw;
+}
+
+.circular-button {
+  position: absolute;
+  display: block;
+  bottom: 50px;
+  left: 50px;
+  width: 100px;
+  opacity: 0;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #0a3362;
+  text-align: center;
+  line-height: 100px;
+  text-decoration: none;
+  visibility: hidden;
+  font-size: 16px;
+  cursor: pointer;
+  transition: opacity 1s, visibility 1s, background-size 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  z-index: 2;
+  background-image: url("../static/assets/arrow-back.svg");
+  background-size: 70%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.show-back-button {
+  visibility: visible;
+  opacity: 1;
+}
+.circular-button:hover {
+  background-size: 75%;
+}
+
+.button-row {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  width: 100vw;
+  bottom: 100px;
+  display: flex;
+  justify-content: center;
+  z-index: 1;
+  transition: opacity 1s, visibility 1s;
+}
+
+.show-button-row {
+  visibility: visible;
+  opacity: 1;
+}
+.circular-button-whiteboard {
+  display: inline-block;
+  transition: opacity 1s, visibility 1s, background-size 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  width: 100px;
+  height: 100px;
+  background-size: 70%;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  border-radius: 50%;
+  background-color: #0a3362;
+  margin: 0px 20px;
+  cursor: pointer;
+  transition: background-size 0.5s ease;
+}
+
+.circular-button-whiteboard:hover {
+  background-size: 80%;
 }

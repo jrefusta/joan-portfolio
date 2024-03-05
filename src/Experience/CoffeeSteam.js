@@ -13,7 +13,7 @@ export default class CoffeeSteam {
     this.setModel();
   }
 
-  setModel() {
+  setModel = () => {
     this.model = {};
 
     this.model.color = "#d1d1d1";
@@ -42,10 +42,10 @@ export default class CoffeeSteam {
     this.model.mesh2.position.set(0.234979, 2.1, -3.64951);
     this.scene.add(this.model.mesh);
     //this.scene.add(this.model.mesh2);
-  }
+  };
 
-  update() {
+  update = () => {
     const elapsedTime = this.experience.clock.getElapsedTime();
     this.model.material.uniforms.uTime.value = elapsedTime;
-  }
+  };
 }

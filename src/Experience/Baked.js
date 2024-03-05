@@ -10,15 +10,15 @@ export default class Baked {
     this.setModel();
   }
 
-  setMaterial(object, material) {
+  setMaterial = (object, material) => {
     object.traverse((_child) => {
       if (_child instanceof THREE.Mesh) {
         _child.material = material;
       }
     });
-  }
+  };
 
-  setModel() {
+  setModel = () => {
     this.model = {};
     this.model.room1 = this.resources.items._roomModel.scene;
 
@@ -66,5 +66,5 @@ export default class Baked {
     this.scene.add(this.model.linkedin);
     this.scene.add(this.model.github);
     this.scene.add(this.model.itchio);
-  }
+  };
 }

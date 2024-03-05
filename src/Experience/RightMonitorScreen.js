@@ -18,7 +18,6 @@ export default class RightMonitorScreen {
     this.mouse = new THREE.Vector2(-1, -1);
     this.drawStartPos = new THREE.Vector2(-1, -1);
     this.raycaster = this.experience.raycaster;
-    this.drawColor = "black";
     this.positionsToDraw = [];
     this.screenMonitorSize = new THREE.Vector2(1370.1780000000001, 764.798);
     this.model = {};
@@ -51,7 +50,7 @@ export default class RightMonitorScreen {
 
     const iframe2 = document.createElement("iframe");
 
-    iframe2.src = "https://henryheffernan.com/";
+    iframe2.src = "https://joan-arcade-machine.vercel.app/";
     iframe2.style.width = this.screenMonitorSize.width + "px";
     iframe2.style.height = this.screenMonitorSize.height + "px";
     iframe2.style.padding = 8 + "px";

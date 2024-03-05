@@ -27,8 +27,15 @@ export default class Whiteboard {
   }
 
   setModel() {
+    this.whiteboardButtons = document.querySelectorAll(
+      ".circular-button-whiteboard"
+    );
+    this.whiteboardButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        this.changeWhiteboardColor(button.id);
+      });
+    });
     this.model.mesh = this.resources.items.whiteboard.scene;
-
     this.model.bakedDayTexture = this.resources.items._baked1;
     this.model.bakedDayTexture.flipY = false;
     this.model.bakedDayTexture.colorSpace = THREE.SRGBColorSpace;
@@ -52,34 +59,57 @@ export default class Whiteboard {
     whiteboardGeom.computeVertexNormals();
     const planeMesh = new THREE.Mesh(whiteboardGeom, this.whiteboardMaterial);
     planeMesh.position.set(-3.3927, 3.18774, -4.61366);
-    planeMesh.receiveShadow = true;
-    planeMesh.castShadow = true;
     planeMesh.name = "whiteboardCanvas";
     this.model.mesh.add(planeMesh);
-    /* this.scene.add(this.whiteboardGroup); */
 
-    //const drawingCanvas = document.getElementById("drawing-canvas");
-    const drawingCanvas = document.getElementById("drawing-canvas");
-    this.drawingContext = drawingCanvas.getContext("2d");
+    const image = this.resources.items.texture_paint.source.data;
+    image.src = image.src;
+
+    this.drawingCanvas = document.getElementById("drawing-canvas");
+    this.drawingContext = this.drawingCanvas.getContext("2d");
+    image.onload = () => {
+      this.drawingContext.drawImage(
+        image,
+        0,
+        0,
+        this.drawingCanvas.width,
+        this.drawingCanvas.height
+      );
+
+      // Convertir el canvas en una CanvasTexture de Three.js
+      this.canvasTexture = new THREE.CanvasTexture(this.drawingCanvas);
+
+      this.canvasTexture.anisotropy =
+        this.renderer.instance.capabilities.getMaxAnisotropy();
+
+      this.canvasTexture.generateMipmaps = true;
+
+      this.canvasTexture.magFilter = THREE.LinearFilter;
+      this.canvasTexture.minFilter = THREE.LinearMipmapLinearFilter;
+
+      // Configurar la textura como map del material
+      this.whiteboardMaterial.map = this.canvasTexture;
+      this.whiteboardMaterial.needsUpdate = true;
+    };
+
     this.drawingContext.lineWidth = 8;
-    this.drawingContext.imageSmoothingQuality = "high";
+    this.drawingContext.lineJoin = "round";
+    this.drawingContext.lineCap = "round";
+    this.drawingContext.fontSmoothingEnabled = true;
     // draw white background
-
     this.drawingContext.fillStyle = "white";
     this.drawingContext.fillRect(0, 0, 2048, 1024);
 
-    // set canvas as material.map (this could be done to any map, bump, displacement etc.)
-    drawingCanvas.needsUpdate = true;
-    const canvasTexture = new THREE.CanvasTexture(drawingCanvas);
-    canvasTexture.minFilter = THREE.LinearMipmapNearestFilter; // O podrías usar THREE.LinearMipmapNearestFilter según tus necesidades
+    this.drawingCanvas.needsUpdate = true;
+    this.canvasTexture = new THREE.CanvasTexture(this.drawingCanvas);
 
-    this.whiteboardMaterial.map = canvasTexture;
+    this.whiteboardMaterial.map = this.canvasTexture;
     this.whiteboardMaterial.map.needsUpdate = true;
   }
 
   throttle(func, delay) {
     let timeoutId;
-    return function (...args) {
+    return (...args) => {
       if (!timeoutId) {
         timeoutId = setTimeout(() => {
           func.apply(this, args);
@@ -104,10 +134,8 @@ export default class Whiteboard {
   draw(x, y) {
     this.drawingContext.strokeStyle = this.drawColor;
 
-    this.drawingContext.beginPath();
     this.drawingContext.moveTo(this.drawStartPos.x, this.drawStartPos.y);
-    //this.positionsToDraw.push(this.drawStartPos.x, this.drawStartPos.y, x, y);
-    //const bufferArray = new Float32Array(this.positionsToDraw);
+    this.positionsToDraw.push(this.drawStartPos.x, this.drawStartPos.y, x, y);
     this.drawingContext.lineTo(x, y);
     this.drawingContext.stroke();
     // reset drawing start position to current position.
@@ -127,6 +155,7 @@ export default class Whiteboard {
         this.objectRaycasted.uv.x * 2048,
         1024 - this.objectRaycasted.uv.y * 1024
       );
+      this.drawingContext.beginPath();
     }
   };
 
@@ -177,21 +206,42 @@ export default class Whiteboard {
     window.removeEventListener("pointerdown", this.onMouseDown, false);
     window.removeEventListener("pointermove", this.throttledMouseMove, false);
     window.removeEventListener("pointerup", this.onMouseUp, false);
-    window.removeEventListener("keydown", this.onKeyDown, false);
     this.isActive = false;
   }
 
   throttledMouseMove = this.throttle(this.onMouseMove, 15);
 
-  onKeyDown = (event) => {
-    if (event.key == "0") {
-      this.drawColor = "black";
-    } else if (event.key == "1") {
-      this.drawColor = "red";
-    } else if (event.key == "2") {
-      this.drawColor = "darkgreen";
-    } else if (event.key == "3") {
-      this.drawColor = "blue";
-    }
+  changeWhiteboardColor = (key) => {
+    const config = {
+      "black-marker": { color: "black", lineWidth: 8 },
+      "red-marker": { color: "red", lineWidth: 8 },
+      "green-marker": { color: "darkgreen", lineWidth: 8 },
+      "blue-marker": { color: "blue", lineWidth: 8 },
+      eraser: { color: "white", lineWidth: 50 },
+    };
+
+    const { color, lineWidth } = config[key] || config["black-marker"];
+
+    this.drawColor = color;
+    this.drawingContext.lineWidth = lineWidth;
+  };
+
+  onKeyDown = (e) => {
+    // Crear un enlace de descarga
+    const a = document.createElement("a");
+
+    // Convertir el canvas en una URL de datos (Data URL)
+    const dataURL = this.drawingCanvas.toDataURL("image/png");
+
+    // Establecer la URL de datos como el href del enlace
+    a.href = dataURL;
+    a.download = "texture_paint.png"; // Nombre del archivo que se descargará
+
+    // Agregar el enlace al DOM y simular un clic para iniciar la descarga
+    document.body.appendChild(a);
+    a.click();
+
+    // Eliminar el enlace del DOM después de la descarga
+    document.body.removeChild(a);
   };
 }
