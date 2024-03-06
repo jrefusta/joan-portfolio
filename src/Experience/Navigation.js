@@ -46,7 +46,7 @@ export default class Navigation {
       this.camera.instance,
       this.webglElement
     );
-    this.orbitControls.enabled = true;
+    this.orbitControls.enabled = false;
     this.orbitControls.screenSpacePanning = true;
     this.orbitControls.enableKeys = false;
     this.orbitControls.zoomSpeed = 1;
@@ -171,7 +171,8 @@ export default class Navigation {
       this.currentStage == null &&
       !this.isCameraMoving &&
       this.experience.world?.rubiksCube?.isPlaced &&
-      !this.experience.world?.confetti?.isExploded
+      !this.experience.world?.confetti?.isExploded &&
+      this.experience.world.resources.loader.resourcesLoaded
     ) {
       this.checkIntersection();
     } else {
@@ -460,6 +461,9 @@ export default class Navigation {
   };
 
   handleBannerVisibility = () => {
+    if (!this.experience.world.resources.loader.resourcesLoaded) {
+      return;
+    }
     const currentZoom = this.getCurrentZoom();
     // Hide banner
     if (this.currentStage === null) {

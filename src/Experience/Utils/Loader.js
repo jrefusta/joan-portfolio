@@ -5,7 +5,11 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
-import { CubeTextureLoader } from "three";
+import { Mesh, CubeTextureLoader, PlaneGeometry, ShaderMaterial } from "three";
+import * as THREE from "three";
+import vertexShader from "../shaders/overlayLoading/vertex.glsl";
+import fragmentShader from "../shaders/overlayLoading/fragment.glsl";
+import { gsap } from "gsap";
 
 export default class Resources extends EventEmitter {
   /**
@@ -13,10 +17,16 @@ export default class Resources extends EventEmitter {
    */
   constructor() {
     super();
+    this.banner = document.querySelector(".banner");
+    this.loadingScreen = document.querySelector(".loadingScreen");
+    this.loadingScreen.classList.add("show-loading-screen");
 
     this.experience = new Experience();
     this.renderer = this.experience.renderer.instance;
-
+    this.scene = this.experience.scene;
+    this.camera = this.experience.camera.instance;
+    this.resourcesLoaded = false;
+    this.setOverlayLoading();
     this.setLoaders();
 
     this.toLoad = 0;
@@ -126,6 +136,41 @@ export default class Resources extends EventEmitter {
     });
   }
 
+  setOverlayLoading() {
+    this.overlayGeometry = new PlaneGeometry(2, 2, 1, 1);
+    this.overlayMaterial = new ShaderMaterial({
+      transparent: true,
+      depthTest: false,
+      uniforms: {
+        uColor: { value: new THREE.Color(0x072446) },
+        uAlpha: { value: 1 },
+      },
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+    });
+    this.overlay = new Mesh(this.overlayGeometry, this.overlayMaterial);
+    this.scene.add(this.overlay);
+  }
+
+  removeOverlay = () => {
+    gsap.to(this.overlayMaterial.uniforms.uAlpha, {
+      duration: 0.5,
+      value: 0,
+      delay: 1,
+      ease: "sine.in",
+      onComplete: () => {
+        this.overlayGeometry.dispose();
+        this.overlayMaterial.dispose();
+        this.scene.remove(this.overlay);
+        this.resourcesLoaded = true;
+      },
+      onStart: () => {
+        this.banner.style.top = "0px";
+        this.experience.navigation.orbitControls.enabled = true;
+      },
+    });
+  };
+
   /**
    * Load
    */
@@ -167,7 +212,15 @@ export default class Resources extends EventEmitter {
   fileLoadEnd(_resource, _data) {
     this.loaded++;
     this.items[_resource.name] = _data;
+    const degrees = (this.loaded / this.toLoad) * 360;
 
+    this.loadingScreen.style.setProperty("--p", degrees + "deg");
+    if (this.loaded == this.toLoad) {
+      if (this.loadingScreen.classList.contains("show-loading-screen")) {
+        this.loadingScreen.classList.remove("show-loading-screen");
+      }
+      this.removeOverlay();
+    }
     this.trigger("fileEnd", [_resource, _data]);
 
     if (this.loaded === this.toLoad) {

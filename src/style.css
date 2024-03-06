@@ -47,7 +47,7 @@ body {
   text-align: center;
   font-size: 1.5vw;
   position: absolute;
-  top: 0px;
+  top: -90px;
   height: 60px;
   left: 0;
   width: 100vw;
@@ -101,6 +101,7 @@ body {
   visibility: visible;
   opacity: 1;
 }
+
 .circular-button:hover {
   background-size: 75%;
 }
@@ -121,6 +122,7 @@ body {
   visibility: visible;
   opacity: 1;
 }
+
 .circular-button-whiteboard {
   display: inline-block;
   transition: opacity 1s, visibility 1s, background-size 0.2s ease-in-out;
@@ -140,4 +142,39 @@ body {
 
 .circular-button-whiteboard:hover {
   background-size: 80%;
+}
+
+.loadingScreen {
+  user-select: none;
+
+  border: solid 0.5em #0a3362;
+  width: 20vmin;
+  aspect-ratio: 1;
+  text-align: center;
+  color: #0a3362;
+  align-items: center;
+  justify-content: space-around;
+  border-radius: 50%;
+  background: #eda72d;
+  --mask: linear-gradient(#0a3362, #0a3362) padding-box,
+    conic-gradient(#0a3362 var(--p, 0%), transparent 0%) border-box;
+  visibility: hidden;
+  opacity: 0;
+  -webkit-mask: var(--mask);
+  mask: var(--mask);
+  transform: translate(-50%, -50%);
+  display: flex;
+  text-align: center;
+  font-size: 1.5vw;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+  transition: opacity 1s, visibility 1s;
+}
+
+.show-loading-screen {
+  visibility: visible;
+  opacity: 1;
 }

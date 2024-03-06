@@ -68,9 +68,7 @@ export default class ArcadeScreen {
     css3dobject.rotateX(-Math.PI / 7);
     this.cssScene.add(css3dobject);
     const materialCRT = new THREE.ShaderMaterial({
-      transparent: true,
       blending: THREE.NoBlending,
-      opacity: 0,
       side: THREE.DoubleSide,
       uniforms: {
         curvature: { value: new THREE.Vector2(3, 3) },
