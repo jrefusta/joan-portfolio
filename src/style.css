@@ -10,6 +10,7 @@
 
 html,
 body {
+  background-color: #072446;
   overflow: hidden;
 }
 
@@ -139,6 +140,53 @@ body {
   cursor: pointer;
   transition: background-size 0.5s ease;
 }
+/* Estilos del botón de audio */
+.audio-button {
+  transition: opacity 1s, visibility 1s, background-size 0.2s ease-in-out,
+    0.2s ease-in-out;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  background-size: 70%;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 2.5vw;
+  aspect-ratio: 1;
+  text-align: center;
+  user-select: none;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 1vw;
+  position: relative; /* Añadido para posicionar el slider */
+}
+
+.audio-button .slider {
+  position: absolute;
+  top: 100%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 200px;
+  background-color: #ccc;
+  border: 1px solid #aaa;
+  display: none;
+}
+
+.audio-button:hover .slider {
+  display: block;
+}
+
+.audio-slider {
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 200px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+  display: none;
+}
+
+.audio-button:hover .audio-slider {
+  display: block;
+}
 
 .circular-button-whiteboard:hover {
   background-size: 80%;
@@ -146,16 +194,15 @@ body {
 
 .loadingScreen {
   user-select: none;
-
-  border: solid 0.5em #0a3362;
+  border: solid 0.5em #eda72d;
   width: 20vmin;
   aspect-ratio: 1;
   text-align: center;
-  color: #0a3362;
+  color: #eda72d;
   align-items: center;
   justify-content: space-around;
   border-radius: 50%;
-  background: #eda72d;
+  background: #0a3362;
   --mask: linear-gradient(#0a3362, #0a3362) padding-box,
     conic-gradient(#0a3362 var(--p, 0%), transparent 0%) border-box;
   visibility: hidden;
@@ -170,11 +217,23 @@ body {
   top: 50%;
   left: 50%;
   z-index: 1;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
-  transition: opacity 1s, visibility 1s;
+  box-shadow: 0 2px 1px rgba(0, 0, 0, 1);
+  transition: all 1s ease;
 }
 
 .show-loading-screen {
   visibility: visible;
   opacity: 1;
+}
+.mobile-text {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 20px;
+  width: 60%;
+  color: #eda72d;
+  z-index: 9999;
 }

@@ -34,6 +34,8 @@ export default class Skybox {
     const planeGeom = new THREE.PlaneGeometry(320, 200);
     const textureSky = this.resources.items.sky4;
     textureSky.colorSpace = THREE.SRGBColorSpace;
+    textureSky.wrapS = THREE.MirroredRepeatWrapping;
+    textureSky.wrapT = THREE.MirroredRepeatWrapping;
     this.planeMat = new THREE.ShaderMaterial({
       uniforms: {
         sky: { value: textureSky },

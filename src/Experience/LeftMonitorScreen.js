@@ -6,15 +6,17 @@ export default class LeftMonitorScreen {
   constructor() {
     this.experience = new Experience();
     this.webglElement = this.experience.webglElement;
+    this.cssElement1 = this.experience.cssElement1;
     this.cssScene1 = this.experience.cssScene1;
     this.cssScene2 = this.experience.cssScene2;
     this.resources = this.experience.resources;
+    this.renderer = this.experience.renderer.instance;
     this.scene = this.experience.scene;
     this.world = this.experience.world;
     this.raycaster = this.experience.raycaster;
     this.mouse = this.experience.mouse;
+    this.navigation = this.experience.navigation;
     this.isActive = false;
-    this.renderer = this.experience.renderer;
     this.camera = this.experience.camera;
     this.objectRaycasted = null;
     this.screenMonitorSize = new THREE.Vector2(1370.1780000000001, 764.798);
@@ -29,6 +31,9 @@ export default class LeftMonitorScreen {
     this.model.bakedDayTexture = this.resources.items._baked2;
     this.model.bakedDayTexture.flipY = false;
     this.model.bakedDayTexture.colorSpace = THREE.SRGBColorSpace;
+
+    this.model.bakedDayTexture.anisotropic =
+      this.renderer.capabilities.getMaxAnisotropy();
     this.model.material = new THREE.MeshBasicMaterial({
       map: this.model.bakedDayTexture,
     });
@@ -49,7 +54,7 @@ export default class LeftMonitorScreen {
 
     const iframe1 = document.createElement("iframe");
 
-    iframe1.src = "https://cobayaunchained.com/";
+    iframe1.src = "http://192.168.1.72:8082/";
     iframe1.style.width = this.screenMonitorSize.width + "px";
     iframe1.style.height = this.screenMonitorSize.height + "px";
     iframe1.style.padding = 8 + "px";
@@ -63,7 +68,7 @@ export default class LeftMonitorScreen {
 
     const css3dobject1 = new CSS3DObject(container1);
 
-    css3dobject1.scale.set(0.00101, 0.00101, 0.00101);
+    css3dobject1.scale.set(0.00102, 0.00102, 1);
     css3dobject1.position.set(1.06738, 2.50725, -4.23009);
     this.cssScene1.add(css3dobject1);
 
@@ -91,14 +96,21 @@ export default class LeftMonitorScreen {
   activateControls() {
     // Configurar eventos del mouse
     window.addEventListener("pointermove", this.onMouseMove, false);
+    window.addEventListener("message", this.receiveMessage, false);
+    this.cssElement1.style.pointerEvents = "auto";
     this.isActive = true;
   }
   deactivateControls() {
     // Configurar eventos del mouse
     window.removeEventListener("pointermove", this.onMouseMove, false);
+    window.removeEventListener("message", this.receiveMessage, false);
+    this.cssElement1.style.pointerEvents = "none";
+
     this.isActive = false;
   }
-
+  receiveMessage = (event) => {
+    this.navigation.flyToPosition("rightMonitor");
+  };
   onMouseMove = (event) => {
     this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;

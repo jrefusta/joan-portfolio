@@ -12,7 +12,7 @@ export default class RightMonitorScreen {
     this.resources = this.experience.resources;
     this.scene = this.experience.scene;
     this.world = this.experience.world;
-    this.renderer = this.experience.renderer;
+    this.renderer = this.experience.renderer.instance;
     this.time = this.experience.time;
     this.camera = this.experience.camera;
     this.mouse = new THREE.Vector2(-1, -1);
@@ -30,6 +30,9 @@ export default class RightMonitorScreen {
     this.model.bakedDayTexture = this.resources.items._baked2;
     this.model.bakedDayTexture.flipY = false;
     this.model.bakedDayTexture.colorSpace = THREE.SRGBColorSpace;
+
+    this.model.bakedDayTexture.anisotropic =
+      this.renderer.capabilities.getMaxAnisotropy();
     this.model.material = new THREE.MeshBasicMaterial({
       map: this.model.bakedDayTexture,
     });
@@ -50,7 +53,7 @@ export default class RightMonitorScreen {
 
     const iframe2 = document.createElement("iframe");
 
-    iframe2.src = "https://joan-arcade-machine.vercel.app/";
+    iframe2.src = "http://192.168.1.72:8081/";
     iframe2.style.width = this.screenMonitorSize.width + "px";
     iframe2.style.height = this.screenMonitorSize.height + "px";
     iframe2.style.padding = 8 + "px";
@@ -64,7 +67,7 @@ export default class RightMonitorScreen {
 
     const css3dobject2 = new CSS3DObject(container2);
 
-    css3dobject2.scale.set(0.00101, 0.00101, 0.00101);
+    css3dobject2.scale.set(0.001019, 0.001019, 1);
     css3dobject2.position.set(2.47898, 2.50716, -4.14566);
     css3dobject2.rotateY((-7.406 * Math.PI) / 180);
     this.cssScene2.add(css3dobject2);

@@ -8,6 +8,7 @@ export default class ArcadeScreen {
   constructor() {
     this.experience = new Experience();
     this.webglElement = this.experience.webglElement;
+    this.renderer = this.experience.renderer.instance;
     this.cssScene = this.experience.cssScene;
     this.scene = this.experience.scene;
     this.resources = this.experience.resources;
@@ -22,6 +23,8 @@ export default class ArcadeScreen {
     this.model.arcadeMachineModel = this.resources.items.arcadeMachine.scene;
 
     this.model.bakedTexture = this.resources.items._baked2;
+    this.model.bakedTexture.anisotropic =
+      this.renderer.capabilities.getMaxAnisotropy();
     this.model.bakedTexture.flipY = false;
     this.model.bakedTexture.colorSpace = THREE.SRGBColorSpace;
     this.model.material = new THREE.MeshBasicMaterial({

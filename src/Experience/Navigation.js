@@ -206,6 +206,9 @@ export default class Navigation {
         this.whiteboardButons.classList.remove("show-button-row");
       }
     }
+    if (this.currentStage) {
+      this.deactivateActivityControls();
+    }
     switch (key) {
       case "arcadeMachine":
         this.backButton.classList.add("show-back-button");
@@ -227,7 +230,7 @@ export default class Navigation {
         this.backButton.classList.add("show-back-button");
         this.cameraIsMoving = true;
         this.orbitControls.enabled = false;
-        this.moveCamera(1.06738, 2.50725, -1.6, 1);
+        this.moveCamera(1.06738, 2.60725, -1.6, 1);
         this.rotateCamera(0, 0, 0, 1, 1.15, key);
         this.changeTarget(1.06738, 2.50725, -4.23009, 1);
         this.clickOnActivity();
@@ -437,26 +440,31 @@ export default class Navigation {
       ) {
         this.backButton.classList.remove("show-back-button");
       }
-      switch (this.currentStage) {
-        case "arcadeMachine":
-          this.experience.world.arcadeScreen.deactivateControls();
-          break;
-        case "whiteboard":
-          this.experience.world.whiteboard.deactivateControls();
-          break;
-        case "leftMonitor":
-          this.experience.world.leftMonitorScreen.deactivateControls();
-          break;
-        case "rightMonitor":
-          this.experience.world.rightMonitorScreen.deactivateControls();
-          break;
-        case "rubikGroup":
-          this.experience.world.rubiksCube.deactivateControls();
-          break;
-      }
+      this.deactivateActivityControls();
       this.currentStage = null;
       this.activateControls();
       this.orbitControls.removeEventListener("change", this.handleChangeEvent);
+    }
+  };
+
+  deactivateActivityControls = () => {
+    console.log("bye, ", this.currentStage);
+    switch (this.currentStage) {
+      case "arcadeMachine":
+        this.experience.world.arcadeScreen.deactivateControls();
+        break;
+      case "whiteboard":
+        this.experience.world.whiteboard.deactivateControls();
+        break;
+      case "leftMonitor":
+        this.experience.world.leftMonitorScreen.deactivateControls();
+        break;
+      case "rightMonitor":
+        this.experience.world.rightMonitorScreen.deactivateControls();
+        break;
+      case "rubikGroup":
+        this.experience.world.rubiksCube.deactivateControls();
+        break;
     }
   };
 

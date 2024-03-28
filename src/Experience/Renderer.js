@@ -35,8 +35,8 @@ export default class Renderer {
     //this.clearColor = new THREE.Color(0xeda72d).convertSRGBToLinear();
     // Renderer
     this.instance = new THREE.WebGLRenderer({
-      alpha: false,
       antialias: true,
+      powerPreference: "high-performance",
     });
     this.instance.domElement.style.position = "absolute";
     this.instance.domElement.style.top = 0;
@@ -58,10 +58,6 @@ export default class Renderer {
     // this.instance.shadowMap.enabled = false
     //this.instance.toneMapping = THREE.ReinhardToneMapping;
     //this.instance.toneMappingExposure = 0.3;
-    this.rubiksInstance = new THREE.WebGLRenderer({
-      alpha: false,
-      antialias: true,
-    });
     this.cssInstance = new CSS3DRenderer();
     this.cssInstance.setSize(this.sizes.width, this.sizes.height);
     this.cssInstance.domElement.style.position = "absolute";
@@ -104,17 +100,16 @@ export default class Renderer {
     this.postProcess.outlinePass.hiddenEdgeColor.set(0xffffff);
     this.postProcess.outlinePass.edgeThickness = 3;
     this.postProcess.outlinePass.edgeStrength = 6;
+    const gpu =
+      navigator.gpu || navigator.userAgent.indexOf("Intel") > -1
+        ? "integrated"
+        : "dedicated";
 
-    /*    const RenderTargetClass =
-      this.config.pixelRatio >= 2
-        ? THREE.WebGLRenderTarget
-        : THREE.WebGLMultisampleRenderTarget; */
-    // const RenderTargetClass = THREE.WebGLRenderTarget
-    this.renderTarget = new THREE.RenderTarget(
+    this.renderTarget = new THREE.WebGLRenderTarget(
       this.config.width,
       this.config.height,
       {
-        samples: this.instance.getPixelRatio() === 1 ? 2 : 0,
+        samples: this.instance.getPixelRatio() >= 2 ? 8 : 4,
         generateMipmaps: false,
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
@@ -133,10 +128,8 @@ export default class Renderer {
     this.postProcess.composer.addPass(this.postProcess.renderPass);
     this.postProcess.composer.addPass(this.postProcess.outlinePass);
     this.postProcess.composer.addPass(this.gammaCorrectionShader);
-    if (
-      this.instance.getPixelRatio() === 1 &&
-      !this.instance.capabilities.isWebGL2
-    ) {
+    if (this.instance.capabilities.isWebGL2) {
+      console.log("smaa");
       const smaaPass = new SMAAPass();
       this.postProcess.composer.addPass(smaaPass);
     }
@@ -146,8 +139,6 @@ export default class Renderer {
     // Instance
     this.instance.setSize(this.config.width, this.config.height);
     this.instance.setPixelRatio(this.config.pixelRatio);
-    this.rubiksInstance.setSize(this.config.width, this.config.height);
-    this.rubiksInstance.setPixelRatio(this.config.pixelRatio);
     this.cssInstance.setSize(this.config.width, this.config.height);
     this.cssInstance1.setSize(this.config.width, this.config.height);
     this.cssInstance2.setSize(this.config.width, this.config.height);

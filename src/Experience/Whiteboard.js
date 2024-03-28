@@ -11,7 +11,7 @@ export default class Whiteboard {
     this.resources = this.experience.resources;
     this.scene = this.experience.scene;
     this.world = this.experience.world;
-    this.renderer = this.experience.renderer;
+    this.renderer = this.experience.renderer.instance;
     this.time = this.experience.time;
     this.camera = this.experience.camera;
     this.mouse = this.experience.mouse;
@@ -39,6 +39,9 @@ export default class Whiteboard {
     this.model.bakedDayTexture = this.resources.items._baked1;
     this.model.bakedDayTexture.flipY = false;
     this.model.bakedDayTexture.colorSpace = THREE.SRGBColorSpace;
+
+    this.model.bakedDayTexture.anisotropic =
+      this.renderer.capabilities.getMaxAnisotropy();
     this.model.material = new THREE.MeshBasicMaterial({
       map: this.model.bakedDayTexture,
     });
@@ -80,7 +83,7 @@ export default class Whiteboard {
       this.canvasTexture = new THREE.CanvasTexture(this.drawingCanvas);
 
       this.canvasTexture.anisotropy =
-        this.renderer.instance.capabilities.getMaxAnisotropy();
+        this.renderer.capabilities.getMaxAnisotropy();
 
       this.canvasTexture.generateMipmaps = true;
 
