@@ -1,44 +1,48 @@
-import * as THREE from "three";
+import {
+  Vector2,
+  MeshBasicMaterial,
+  PlaneGeometry,
+  DoubleSide,
+  NoBlending,
+  Mesh,
+} from "three";
 import Experience from "./Experience.js";
 import { CSS3DObject } from "three/examples/jsm/renderers/CSS3DRenderer.js";
+import {
+  MONITOR_SCREEN_WIDTH,
+  MONITOR_SCREEN_HEIGHT,
+  MONITOR_IFRAME_PADDING,
+  RIGHT_MONITOR_IFRAME_SRC,
+  RIGHT_MONITOR_CSS_OBJECT_POSITION,
+  RIGHT_MONITOR_CSS_OBJECT_SCALE,
+  RIGHT_MONITOR_CSS_OBJECT_ROTATION_Y,
+} from "./constants.js";
 
 export default class RightMonitorScreen {
   constructor() {
     this.experience = new Experience();
     this.webglElement = this.experience.webglElement;
-    this.cssScene = this.experience.cssScene;
-    this.cssScene1 = this.experience.cssScene1;
-    this.cssScene2 = this.experience.cssScene2;
+    this.cssRightMonitorScene = this.experience.cssRightMonitorScene;
     this.resources = this.experience.resources;
     this.scene = this.experience.scene;
-    this.world = this.experience.world;
     this.renderer = this.experience.renderer.instance;
-    this.time = this.experience.time;
     this.camera = this.experience.camera;
-    this.mouse = new THREE.Vector2(-1, -1);
-    this.drawStartPos = new THREE.Vector2(-1, -1);
+    this.mouse = this.experience.mouse;
+    this.materialRightMonitor = this.experience.world.baked.model.material2;
     this.raycaster = this.experience.raycaster;
-    this.positionsToDraw = [];
-    this.screenMonitorSize = new THREE.Vector2(1370.1780000000001, 764.798);
+    this.screenMonitorSize = new Vector2(
+      MONITOR_SCREEN_WIDTH,
+      MONITOR_SCREEN_HEIGHT
+    );
     this.model = {};
     this.setModel();
     this.setRightMonitorScreen();
   }
   setModel() {
     this.model.mesh = this.resources.items.rightMonitor.scene;
-
-    this.model.bakedDayTexture = this.resources.items._baked2;
-    this.model.bakedDayTexture.flipY = false;
-    this.model.bakedDayTexture.colorSpace = THREE.SRGBColorSpace;
-
-    this.model.bakedDayTexture.anisotropic =
-      this.renderer.capabilities.getMaxAnisotropy();
-    this.model.material = new THREE.MeshBasicMaterial({
-      map: this.model.bakedDayTexture,
-    });
-    this.model.mesh.traverse((_child) => {
-      if (_child instanceof THREE.Mesh) {
-        _child.material = this.model.material;
+    this.model.mesh.traverse((child) => {
+      if (child.isMesh) {
+        child.material = this.materialRightMonitor;
       }
     });
     this.model.mesh.name = "rightMonitor";
@@ -46,69 +50,61 @@ export default class RightMonitorScreen {
   }
 
   setRightMonitorScreen() {
-    const container2 = document.createElement("div");
-    container2.style.width = this.screenMonitorSize.width + "px";
-    container2.style.height = this.screenMonitorSize.height + "px";
-    container2.style.opacity = "1";
+    const container = document.createElement("div");
+    container.style.width = this.screenMonitorSize.width + "px";
+    container.style.height = this.screenMonitorSize.height + "px";
 
-    const iframe2 = document.createElement("iframe");
+    const iframe = document.createElement("iframe");
 
-    iframe2.src = "http://192.168.1.72:8081/";
-    iframe2.style.width = this.screenMonitorSize.width + "px";
-    iframe2.style.height = this.screenMonitorSize.height + "px";
-    iframe2.style.padding = 8 + "px";
+    iframe.src = RIGHT_MONITOR_IFRAME_SRC;
+    iframe.style.width = this.screenMonitorSize.width + "px";
+    iframe.style.height = this.screenMonitorSize.height + "px";
+    iframe.style.padding = MONITOR_IFRAME_PADDING;
 
-    iframe2.style.opacity = "1";
-    iframe2.style.transparent = true;
-    iframe2.id = "computer-screen";
-    iframe2.style.boxSizing = "border-box";
-    iframe2.style.background = "black";
-    container2.appendChild(iframe2);
+    iframe.style.transparent = true;
+    iframe.id = "right-monitor-screen";
+    iframe.style.boxSizing = "border-box";
+    iframe.style.background = "black";
+    container.appendChild(iframe);
 
-    const css3dobject2 = new CSS3DObject(container2);
+    const css3dobject = new CSS3DObject(container);
 
-    css3dobject2.scale.set(0.001019, 0.001019, 1);
-    css3dobject2.position.set(2.47898, 2.50716, -4.14566);
-    css3dobject2.rotateY((-7.406 * Math.PI) / 180);
-    this.cssScene2.add(css3dobject2);
+    css3dobject.position.copy(RIGHT_MONITOR_CSS_OBJECT_POSITION);
+    css3dobject.scale.copy(RIGHT_MONITOR_CSS_OBJECT_SCALE);
+    css3dobject.rotation.y = RIGHT_MONITOR_CSS_OBJECT_ROTATION_Y;
+    this.cssRightMonitorScene.add(css3dobject);
 
-    const material = new THREE.MeshBasicMaterial({ color: "black" });
-    material.side = THREE.DoubleSide;
-    material.opacity = 0;
-    material.transparent = true;
-    // NoBlending allows the GL plane to occlude the CSS plane
-    material.blending = THREE.NoBlending;
-
+    const material = new MeshBasicMaterial({
+      color: "black",
+      side: DoubleSide,
+      opacity: 0,
+      transparent: true,
+      blending: NoBlending,
+    });
     // Create plane geometry
-    const geometry1 = new THREE.PlaneGeometry(
+    const geometry = new PlaneGeometry(
       this.screenMonitorSize.width,
       this.screenMonitorSize.height
     );
-    // Create the GL plane mesh
 
-    const screen = new THREE.Mesh(geometry1, material);
-    screen.position.copy(css3dobject2.position);
-    screen.rotation.copy(css3dobject2.rotation);
-    screen.scale.copy(css3dobject2.scale);
+    const screen = new Mesh(geometry, material);
+    screen.position.copy(css3dobject.position);
+    screen.rotation.copy(css3dobject.rotation);
+    screen.scale.copy(css3dobject.scale);
     screen.name = "rightMonitorScreen";
-    // Add to gl scene
     this.model.mesh.add(screen);
   }
 
   activateControls() {
-    // Configurar eventos del mouse
     window.addEventListener("pointermove", this.onMouseMove, false);
     this.isActive = true;
   }
   deactivateControls() {
-    // Configurar eventos del mouse
     window.removeEventListener("pointermove", this.onMouseMove, false);
     this.isActive = false;
   }
 
-  onMouseMove = (event) => {
-    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  onMouseMove = () => {
     if (
       this.objectRaycasted &&
       this.objectRaycasted.object &&

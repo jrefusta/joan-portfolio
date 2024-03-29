@@ -3,7 +3,6 @@ import Experience from "./Experience.js";
 import Baked from "./Baked.js";
 import CoffeeSteam from "./CoffeeSteam.js";
 import TopChair from "./TopChair.js";
-import Screen from "./Screen.js";
 import Whiteboard from "./Whiteboard.js";
 import Carpet from "./Carpet.js";
 import ArcadeScreen from "./ArcadeScreen.js";
@@ -12,6 +11,8 @@ import RightMonitorScreen from "./RightMonitorScreen.js";
 import RubiksCube from "./RubiksCube.js";
 import Skybox from "./Skybox.js";
 import Confetti from "./Confetti.js";
+
+import { RUBIK_POSITION, RUBIK_SCALE } from "./constants.js";
 
 export default class World {
   constructor(_options) {
@@ -42,10 +43,7 @@ export default class World {
   }
 
   setRubiksCube() {
-    this.rubiksCube = new RubiksCube(
-      new THREE.Vector3(-0.67868, 1.499, -3.92849),
-      0.021432
-    );
+    this.rubiksCube = new RubiksCube(RUBIK_POSITION, RUBIK_SCALE);
   }
 
   setSkybox() {

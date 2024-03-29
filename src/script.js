@@ -9,9 +9,9 @@ const isMobile =
 if (window.innerWidth > 768 && !isMobile) {
   window.experience = new Experience({
     webglElement: document.querySelector("#webgl"),
-    cssElement: document.querySelector("#css"),
-    cssElement1: document.querySelector("#css1"),
-    cssElement2: document.querySelector("#css2"),
+    cssArcadeMachine: document.querySelector("#cssArcadeMachine"),
+    cssLeftMonitor: document.querySelector("#cssLeftMonitor"),
+    cssRightMonitor: document.querySelector("#cssRightMonitor"),
   });
 } else {
   const mobileAdvise = document.querySelector(".mobile-text");

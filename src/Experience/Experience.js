@@ -1,8 +1,7 @@
-import * as THREE from "three";
+import { Clock, Raycaster, Vector2, Scene } from "three";
 
 import Time from "./Utils/Time.js";
 import Sizes from "./Utils/Sizes.js";
-import Stats from "./Utils/Stats.js";
 
 import Resources from "./Resources.js";
 import Renderer from "./Renderer.js";
@@ -23,9 +22,9 @@ export default class Experience {
 
     // Options
     this.webglElement = _options.webglElement;
-    this.cssElement = _options.cssElement;
-    this.cssElement1 = _options.cssElement1;
-    this.cssElement2 = _options.cssElement2;
+    this.cssArcadeMachine = _options.cssArcadeMachine;
+    this.cssLeftMonitor = _options.cssLeftMonitor;
+    this.cssRightMonitor = _options.cssRightMonitor;
 
     if (!this.webglElement) {
       console.warn("Missing 'webglElement' property");
@@ -33,12 +32,11 @@ export default class Experience {
     }
 
     this.time = new Time();
-    this.clock = new THREE.Clock();
-    this.raycaster = new THREE.Raycaster();
+    this.clock = new Clock();
+    this.raycaster = new Raycaster();
     this.sizes = new Sizes();
-    this.mouse = new THREE.Vector2();
+    this.mouse = new Vector2();
     this.setConfig();
-    this.setStats();
     this.setScene();
     this.setCamera();
     this.setRenderer();
@@ -67,15 +65,11 @@ export default class Experience {
     this.config.largestSide = Math.max(this.config.width, this.config.height);
   }
 
-  setStats() {
-    this.stats = new Stats(true);
-  }
-
   setScene() {
-    this.scene = new THREE.Scene();
-    this.cssScene = new THREE.Scene();
-    this.cssScene1 = new THREE.Scene();
-    this.cssScene2 = new THREE.Scene();
+    this.scene = new Scene();
+    this.cssArcadeMachineScene = new Scene();
+    this.cssLeftMonitorScene = new Scene();
+    this.cssRightMonitorScene = new Scene();
   }
 
   setCamera() {
@@ -99,8 +93,6 @@ export default class Experience {
   }
 
   update() {
-    if (this.stats) this.stats.update();
-
     if (this.navigation) this.navigation.update();
     this.camera.update();
 
@@ -129,6 +121,4 @@ export default class Experience {
 
     if (this.world) this.world.resize();
   }
-
-  destroy() {}
 }

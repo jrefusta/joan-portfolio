@@ -1,11 +1,18 @@
-import * as THREE from "three";
+import {
+  Group,
+  Object3D,
+  Vector2,
+  AmbientLight,
+  DirectionalLight,
+  Vector3,
+} from "three";
 import Experience from "./Experience";
-import cubeInfo from "../../static/assets/cubeInfo.json";
+import cubeInfo from "../../static/assets/json/cubeInfo.json";
+import { RUBIK_ROTATION_Y } from "./constants.js";
+
 import { gsap } from "gsap";
 
 class RubiksCube {
-  static layers = ["row", "col", "depth"];
-
   constructor(position, scale) {
     this.experience = new Experience();
     this.position = this.originalPos = position;
@@ -13,7 +20,7 @@ class RubiksCube {
     this.scene = this.experience.scene;
     this.camera = this.experience.camera.instance;
     this.resources = this.experience.resources;
-    this.rubikGroup = new THREE.Group();
+    this.rubikGroup = new Group();
     this.rubikCubes = [];
     this.childrensToRotate = [];
     this.sideToRotate;
@@ -21,7 +28,7 @@ class RubiksCube {
     this.movesCompletedStack = [];
     this.currentMove;
     this.movementsStack = [];
-    this.pivot = new THREE.Object3D();
+    this.pivot = new Object3D();
     this.objectRaycasted;
     this.firstClickPosition;
     this.firstClickNormal;
@@ -30,7 +37,7 @@ class RubiksCube {
     this.isMoving = false;
     this.allCubies = [];
     this.isActive = false;
-    this.pointer = new THREE.Vector2();
+    this.pointer = new Vector2();
     this.duration = 0.0;
     this.isPlaced = true;
     this.raycaster = this.experience.raycaster;
@@ -68,10 +75,10 @@ class RubiksCube {
       this.position.z
     );
     this.rubikGroup.scale.set(this.scale, this.scale, this.scale);
-    this.rubikGroup.rotateY((-152.484 * Math.PI) / 180);
+    this.rubikGroup.rotation.y = RUBIK_ROTATION_Y;
 
-    const light = new THREE.AmbientLight(0xffffff, 1);
-    const lightD = new THREE.DirectionalLight(0xffffff, 1);
+    const light = new AmbientLight(0xffffff, 1);
+    const lightD = new DirectionalLight(0xffffff, 1);
     lightD.position.y = 40;
     lightD.position.z = 40;
     lightD.position.x = 40;
@@ -137,7 +144,7 @@ class RubiksCube {
         this.isActive = true;
       },
     });
-    this.position = new THREE.Vector3(0, 0, 0);
+    this.position = new Vector3(0, 0, 0);
   }
 
   resetOriginalConfig() {
@@ -181,7 +188,7 @@ class RubiksCube {
       duration: 1,
       ease: "sine.out",
     });
-    this.position = new THREE.Vector3(
+    this.position = new Vector3(
       this.originalPos.x,
       this.originalPos.y,
       this.originalPos.z
@@ -235,7 +242,7 @@ class RubiksCube {
         this.experience.world.confetti.explode();
       },
     });
-    this.position = new THREE.Vector3(
+    this.position = new Vector3(
       this.originalPos.x,
       this.originalPos.y,
       this.originalPos.z
@@ -261,19 +268,13 @@ class RubiksCube {
       );
       this.objectClicked = this.objectRaycasted.object.parent;
       this.draggingg = true;
-      this.firstClickPosition = new THREE.Vector2(
-        this.pointer.x,
-        this.pointer.y
-      );
+      this.firstClickPosition = new Vector2(this.pointer.x, this.pointer.y);
     }
   };
   onPointerUp = () => {
     if (this.draggingg) {
-      const currentClickPosition = new THREE.Vector2(
-        this.pointer.x,
-        this.pointer.y
-      );
-      const distanceVector = new THREE.Vector2(
+      const currentClickPosition = new Vector2(this.pointer.x, this.pointer.y);
+      const distanceVector = new Vector2(
         currentClickPosition.x - this.firstClickPosition.x,
         currentClickPosition.y - this.firstClickPosition.y
       );

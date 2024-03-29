@@ -1,36 +1,42 @@
-import * as THREE from "three";
+import {
+  Object3D,
+  PlaneGeometry,
+  MeshBasicMaterial,
+  InstancedMesh,
+  Color,
+  Matrix4,
+  Vector3,
+  Euler,
+  DoubleSide,
+} from "three";
 
 import Experience from "./Experience.js";
+import {
+  CONFETTI_AMOUNT,
+  CONFETTI_EXPLOSION_RADIUS,
+  CONFETTI_COLORS,
+} from "./constants.js";
 
 export default class Confetti {
   constructor() {
     this.experience = new Experience();
     this.scene = this.experience.scene;
-    this.world = this.experience.world;
-    this.amount = 500;
-    this.radius = 300;
-    this.areaWidth = 50;
-    this.areaHeight = 10;
-    this.fallingHeight = 10;
-    this.fallingFloor = -10;
-    this.fallingSpeed = 1;
     this.infoParticles = [];
-    this.dummy = new THREE.Object3D();
-    this.isExploded = false;
-    this.colors = [0xf03559, 0xf272b3, 0x9be4f2, 0xffeb5e, 0xffb300, 0x7bff8b];
+    this.dummy = new Object3D();
+    this.hasExploded = false;
     this.setConfetti();
   }
 
   setConfetti() {
-    this.geometry = new THREE.PlaneGeometry(0.05, 0.05);
-    this.material = new THREE.MeshBasicMaterial({
+    this.geometry = new PlaneGeometry(0.05, 0.05);
+    this.material = new MeshBasicMaterial({
       color: 0xffffff,
-      side: THREE.DoubleSide,
+      side: DoubleSide,
     });
-    this.particles = new THREE.InstancedMesh(
+    this.particles = new InstancedMesh(
       this.geometry,
       this.material,
-      this.amount
+      CONFETTI_AMOUNT
     );
     this.particles.visible = false;
     this.scene.add(this.particles);
@@ -45,22 +51,25 @@ export default class Confetti {
   }
 
   getRandomColor() {
-    var randIndex = Math.floor(Math.random() * this.colors.length);
-    return this.colors[randIndex];
+    var randIndex = Math.floor(Math.random() * CONFETTI_COLORS.length);
+    return CONFETTI_COLORS[randIndex];
   }
 
   explode() {
     this.particles.visible = true;
-    this.isExploded = true;
+    this.hasExploded = true;
     setTimeout(() => {
       this.destroy();
     }, 2000);
-    for (var i = 0; i < this.amount; i++) {
+    for (var i = 0; i < CONFETTI_AMOUNT; i++) {
       const info = {};
       const destination = {};
-      destination.x = (Math.random() - 0.5) * (this.radius * 2) * Math.random();
-      destination.y = (Math.random() - 0.5) * (this.radius * 2) * Math.random();
-      destination.z = (Math.random() - 0.5) * (this.radius * 2) * Math.random();
+      destination.x =
+        (Math.random() - 0.5) * (CONFETTI_EXPLOSION_RADIUS * 2) * Math.random();
+      destination.y =
+        (Math.random() - 0.5) * (CONFETTI_EXPLOSION_RADIUS * 2) * Math.random();
+      destination.z =
+        (Math.random() - 0.5) * (CONFETTI_EXPLOSION_RADIUS * 2) * Math.random();
       info.destination = destination;
       const rotateSpeed = {};
       rotateSpeed.x = this.randomPlusMinus(0.4);
@@ -68,10 +77,10 @@ export default class Confetti {
       rotateSpeed.z = this.randomPlusMinus(0.4);
       info.rotateSpeed = rotateSpeed;
       this.infoParticles.push(info);
-      this.particles.setColorAt(i, new THREE.Color(this.getRandomColor()));
+      this.particles.setColorAt(i, new Color(this.getRandomColor()));
     }
-    const dummy = new THREE.Object3D();
-    for (var i = 0; i < this.amount; i++) {
+    const dummy = new Object3D();
+    for (var i = 0; i < CONFETTI_AMOUNT; i++) {
       dummy.position.y = 7.5;
       dummy.rotation.x = Math.random() * Math.PI * 2;
       dummy.rotation.y = Math.random() * Math.PI * 2;
@@ -85,42 +94,43 @@ export default class Confetti {
   }
 
   update = () => {
-    if (!this.isExploded) {
+    if (!this.hasExploded) {
       return;
     }
 
-    for (var h = 0; h < this.amount; h++) {
-      this.infoParticles[h].destination.y -= this.randomFromTo(3, 6);
-      const matrixparticles = new THREE.Matrix4();
-      this.particles.getMatrixAt(h, matrixparticles);
-      const currentparticlesPosition =
-        new THREE.Vector3().setFromMatrixPosition(matrixparticles);
-      const currentparticlesEuler = new THREE.Euler().setFromRotationMatrix(
+    const { particles, infoParticles, dummy } = this;
+
+    for (let i = 0; i < CONFETTI_AMOUNT; i++) {
+      const { destination, rotateSpeed } = infoParticles[i];
+
+      destination.y -= this.randomFromTo(3, 6);
+
+      const matrixparticles = new Matrix4();
+      particles.getMatrixAt(i, matrixparticles);
+
+      const currentparticlesPosition = new Vector3().setFromMatrixPosition(
         matrixparticles
       );
-      var speedX =
-        (this.infoParticles[h].destination.x - currentparticlesPosition.x) /
-        8000;
-      var speedY =
-        (this.infoParticles[h].destination.y - currentparticlesPosition.y) /
-        10000;
-      var speedZ =
-        (this.infoParticles[h].destination.z - currentparticlesPosition.z) /
-        8000;
-      this.dummy.position.x = currentparticlesPosition.x + speedX;
-      this.dummy.position.y = currentparticlesPosition.y + speedY;
-      this.dummy.position.z = currentparticlesPosition.z + speedZ;
+      const currentparticlesEuler = new Euler().setFromRotationMatrix(
+        matrixparticles
+      );
 
-      this.dummy.rotation.x =
-        currentparticlesEuler.x + this.infoParticles[h].rotateSpeed.x;
-      this.dummy.rotation.y =
-        currentparticlesEuler.y + this.infoParticles[h].rotateSpeed.y;
-      this.dummy.rotation.z =
-        currentparticlesEuler.z + this.infoParticles[h].rotateSpeed.z;
-      this.dummy.updateMatrix();
-      this.particles.setMatrixAt(h, this.dummy.matrix);
-      this.particles.instanceMatrix.needsUpdate = true;
+      const speedX = (destination.x - currentparticlesPosition.x) / 8000;
+      const speedY = (destination.y - currentparticlesPosition.y) / 10000;
+      const speedZ = (destination.z - currentparticlesPosition.z) / 8000;
+
+      dummy.position.copy(
+        currentparticlesPosition.add(new Vector3(speedX, speedY, speedZ))
+      );
+      dummy.rotation.set(
+        currentparticlesEuler.x + rotateSpeed.x,
+        currentparticlesEuler.y + rotateSpeed.y,
+        currentparticlesEuler.z + rotateSpeed.z
+      );
+      dummy.updateMatrix();
+      particles.setMatrixAt(i, dummy.matrix);
     }
+    particles.instanceMatrix.needsUpdate = true;
   };
 
   destroy = () => {
@@ -128,6 +138,6 @@ export default class Confetti {
     this.particles.geometry.dispose();
     this.scene.remove(this.particles);
     this.particles = null;
-    this.isExploded = false;
+    this.hasExploded = false;
   };
 }

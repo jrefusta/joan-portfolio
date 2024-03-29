@@ -1,27 +1,35 @@
-import * as THREE from "three";
+import {
+  Group,
+  Vector2,
+  SRGBColorSpace,
+  MeshBasicMaterial,
+  PlaneGeometry,
+  Mesh,
+  CanvasTexture,
+  LinearFilter,
+  LinearMipmapLinearFilter,
+} from "three";
 import Experience from "./Experience.js";
 
 export default class Whiteboard {
   constructor() {
     this.experience = new Experience();
     this.webglElement = this.experience.webglElement;
-    this.cssScene = this.experience.cssScene;
-    this.cssScene1 = this.experience.cssScene1;
-    this.cssScene2 = this.experience.cssScene2;
     this.resources = this.experience.resources;
     this.scene = this.experience.scene;
-    this.world = this.experience.world;
     this.renderer = this.experience.renderer.instance;
-    this.time = this.experience.time;
     this.camera = this.experience.camera;
     this.mouse = this.experience.mouse;
-    this.whiteboardGroup = new THREE.Group();
-    this.drawStartPos = new THREE.Vector2(-1, -1);
+    this.baked = this.experience.world.baked;
+    this.whiteboardGroup = new Group();
+    this.drawStartPos = new Vector2(-1, -1);
     this.raycaster = this.experience.raycaster;
     this.drawColor = "black";
     this.isActive = false;
     this.positionsToDraw = [];
     this.model = {};
+    this.materialWhiteboard = this.experience.world.baked.model.material;
+
     this.setModel();
     this.setWhiteboard();
   }
@@ -36,18 +44,9 @@ export default class Whiteboard {
       });
     });
     this.model.mesh = this.resources.items.whiteboard.scene;
-    this.model.bakedDayTexture = this.resources.items._baked1;
-    this.model.bakedDayTexture.flipY = false;
-    this.model.bakedDayTexture.colorSpace = THREE.SRGBColorSpace;
-
-    this.model.bakedDayTexture.anisotropic =
-      this.renderer.capabilities.getMaxAnisotropy();
-    this.model.material = new THREE.MeshBasicMaterial({
-      map: this.model.bakedDayTexture,
-    });
-    this.model.mesh.traverse((_child) => {
-      if (_child instanceof THREE.Mesh) {
-        _child.material = this.model.material;
+    this.model.mesh.traverse((child) => {
+      if (child.isMesh) {
+        child.material = this.materialWhiteboard;
       }
     });
     this.whiteboardGroup.add(this.model.mesh);
@@ -56,11 +55,11 @@ export default class Whiteboard {
   }
 
   setWhiteboard() {
-    this.whiteboardMaterial = new THREE.MeshBasicMaterial();
-    const whiteboardGeom = new THREE.PlaneGeometry(2.6, 1.82);
+    this.whiteboardMaterial = new MeshBasicMaterial();
+    const whiteboardGeom = new PlaneGeometry(2.6, 1.82);
     whiteboardGeom.computeBoundingBox();
     whiteboardGeom.computeVertexNormals();
-    const planeMesh = new THREE.Mesh(whiteboardGeom, this.whiteboardMaterial);
+    const planeMesh = new Mesh(whiteboardGeom, this.whiteboardMaterial);
     planeMesh.position.set(-3.3927, 3.18774, -4.61366);
     planeMesh.name = "whiteboardCanvas";
     this.model.mesh.add(planeMesh);
@@ -79,18 +78,16 @@ export default class Whiteboard {
         this.drawingCanvas.height
       );
 
-      // Convertir el canvas en una CanvasTexture de Three.js
-      this.canvasTexture = new THREE.CanvasTexture(this.drawingCanvas);
+      this.canvasTexture = new CanvasTexture(this.drawingCanvas);
 
       this.canvasTexture.anisotropy =
         this.renderer.capabilities.getMaxAnisotropy();
 
       this.canvasTexture.generateMipmaps = true;
 
-      this.canvasTexture.magFilter = THREE.LinearFilter;
-      this.canvasTexture.minFilter = THREE.LinearMipmapLinearFilter;
+      this.canvasTexture.magFilter = LinearFilter;
+      this.canvasTexture.minFilter = LinearMipmapLinearFilter;
 
-      // Configurar la textura como map del material
       this.whiteboardMaterial.map = this.canvasTexture;
       this.whiteboardMaterial.needsUpdate = true;
     };
@@ -104,7 +101,7 @@ export default class Whiteboard {
     this.drawingContext.fillRect(0, 0, 2048, 1024);
 
     this.drawingCanvas.needsUpdate = true;
-    this.canvasTexture = new THREE.CanvasTexture(this.drawingCanvas);
+    this.canvasTexture = new CanvasTexture(this.drawingCanvas);
 
     this.whiteboardMaterial.map = this.canvasTexture;
     this.whiteboardMaterial.map.needsUpdate = true;
@@ -138,7 +135,6 @@ export default class Whiteboard {
     this.drawingContext.strokeStyle = this.drawColor;
 
     this.drawingContext.moveTo(this.drawStartPos.x, this.drawStartPos.y);
-    this.positionsToDraw.push(this.drawStartPos.x, this.drawStartPos.y, x, y);
     this.drawingContext.lineTo(x, y);
     this.drawingContext.stroke();
     // reset drawing start position to current position.
@@ -196,16 +192,13 @@ export default class Whiteboard {
   };
 
   activateControls() {
-    // Configurar eventos del mouse
     window.addEventListener("pointerdown", this.onMouseDown, false);
     window.addEventListener("pointermove", this.throttledMouseMove, false);
     window.addEventListener("pointerup", this.onMouseUp, false);
-    window.addEventListener("keydown", this.onKeyDown, false);
     this.isActive = true;
   }
 
   deactivateControls() {
-    // Configurar eventos del mouse
     window.removeEventListener("pointerdown", this.onMouseDown, false);
     window.removeEventListener("pointermove", this.throttledMouseMove, false);
     window.removeEventListener("pointerup", this.onMouseUp, false);
@@ -227,24 +220,5 @@ export default class Whiteboard {
 
     this.drawColor = color;
     this.drawingContext.lineWidth = lineWidth;
-  };
-
-  onKeyDown = (e) => {
-    // Crear un enlace de descarga
-    const a = document.createElement("a");
-
-    // Convertir el canvas en una URL de datos (Data URL)
-    const dataURL = this.drawingCanvas.toDataURL("image/png");
-
-    // Establecer la URL de datos como el href del enlace
-    a.href = dataURL;
-    a.download = "texture_paint.png"; // Nombre del archivo que se descargará
-
-    // Agregar el enlace al DOM y simular un clic para iniciar la descarga
-    document.body.appendChild(a);
-    a.click();
-
-    // Eliminar el enlace del DOM después de la descarga
-    document.body.removeChild(a);
   };
 }

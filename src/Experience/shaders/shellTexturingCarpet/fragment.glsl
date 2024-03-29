@@ -1,10 +1,10 @@
 
 varying vec2 vUv;
-uniform float shellCount;
-uniform float shellIndex;
-uniform float density;
-uniform float thickness;
-uniform vec3 color;
+uniform float uShellCount;
+uniform float uShellIndex;
+uniform float uDensity;
+uniform float uThickness;
+uniform vec3 uColor;
 
 float hash(uint n) {
 // Integer hash adapted for GLSL from Hugo Elias
@@ -16,7 +16,7 @@ float hash(uint n) {
 }
 
 void main() {
-  vec2 newUV = vUv * density;
+  vec2 newUV = vUv * uDensity;
   vec2 localUV = fract(newUV) * 2.0 - 1.0;
   float localDistanceFromCenter = length(localUV);
   uvec2 tid = uvec2(uint(newUV.x), uint(newUV.y));
@@ -24,14 +24,14 @@ void main() {
 
   float rand = hash(seed);
 
-  float h = shellIndex / shellCount;
-  bool outsideThickness = localDistanceFromCenter > (thickness * (rand - h));
+  float h = uShellIndex / uShellCount;
+  bool outsideuThickness = localDistanceFromCenter > (uThickness * (rand - h));
   float distanceToCenter = distance(vUv, vec2(0.5, 0.5));
-  if (outsideThickness && shellIndex > 0.0 || distanceToCenter > 0.5 || rand < h) {
+  if (outsideuThickness && uShellIndex > 0.0 || distanceToCenter > 0.5 || rand < h) {
     discard;
   }
   else {
-    vec3 color = color * pow(max(h, 0.125), 0.5);
-    gl_FragColor = vec4(color, 1.0) ;
+    vec3 uColor = uColor * pow(max(h, 0.125), 0.5);
+    gl_FragColor = vec4(uColor, 1.0) ;
   }
 }

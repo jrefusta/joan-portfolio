@@ -1,56 +1,54 @@
-import * as THREE from "three";
+import { Group, ShaderMaterial, DoubleSide, PlaneGeometry, Mesh } from "three";
 
 import Experience from "./Experience.js";
 import fragmentShaderCarpet from "./shaders/shellTexturingCarpet/fragment.glsl";
 import vertexShaderCarpet from "./shaders/shellTexturingCarpet/vertex.glsl";
+import {
+  CARPET_UNIFORMS,
+  CARPET_SHELLCOUNT,
+  CARPET_GROUP_SCALE,
+  CARPET_GROUP_POSITION,
+  CARPET_GROUP_ROTATION,
+} from "./constants.js";
 
 export default class Carpet {
   constructor() {
     this.experience = new Experience();
-    this.resources = this.experience.resources;
     this.scene = this.experience.scene;
-    this.world = this.experience.world;
-    this.time = this.experience.time;
-    this.carpetGroup = new THREE.Group();
+    this.carpetGroup = new Group();
     this.setCarpet();
   }
 
   setCarpet() {
-    const shellCount = 32;
+    const shellCount = CARPET_SHELLCOUNT;
     for (let i = 0; i < shellCount; ++i) {
-      // Crear el ShaderMaterial
-      const shaderMaterial = new THREE.ShaderMaterial({
+      const shaderMaterial = new ShaderMaterial({
         vertexShader: vertexShaderCarpet,
         fragmentShader: fragmentShaderCarpet,
-        side: THREE.DoubleSide,
+        side: DoubleSide,
         uniforms: {
-          color: {
-            value: new THREE.Color(
-              0.7529412,
-              0.5424671,
-              0.4392157
-            ).convertSRGBToLinear(),
+          uColor: {
+            value: CARPET_UNIFORMS.uColor,
           },
-          shellCount: { value: shellCount },
-          shellIndex: { value: i },
-          shellLength: { value: 0.16 },
-          density: { value: 250 },
-          thickness: { value: 5 },
+          uShellCount: { value: CARPET_UNIFORMS.uShellCount },
+          uShellIndex: { value: i },
+          uShellLength: { value: CARPET_UNIFORMS.uShellLength },
+          uDensity: { value: CARPET_UNIFORMS.uDensity },
+          uThickness: { value: CARPET_UNIFORMS.uThickness },
         },
       });
 
-      // Crear el plano
-      const planeGeom = new THREE.PlaneGeometry(100, 100);
-      const planeMesh = new THREE.Mesh(planeGeom, shaderMaterial);
-      planeMesh.rotation.x = -Math.PI / 2;
+      const planeGeom = new PlaneGeometry(100, 100);
+      const planeMesh = new Mesh(planeGeom, shaderMaterial);
+      planeMesh.rotation.copy(CARPET_GROUP_ROTATION);
       planeMesh.position.y = -10 + i * 0.1;
       planeMesh.receiveShadow = true;
       planeMesh.castShadow = true;
       this.carpetGroup.add(planeMesh);
     }
     this.carpetGroup.name = "Carpet";
-    this.carpetGroup.scale.set(0.0355, 0.0355, 0.0355);
-    this.carpetGroup.position.set(-2.61408, 0.377, -0.904327);
+    this.carpetGroup.scale.copy(CARPET_GROUP_SCALE);
+    this.carpetGroup.position.copy(CARPET_GROUP_POSITION);
     this.scene.add(this.carpetGroup);
   }
 }

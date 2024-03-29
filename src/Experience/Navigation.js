@@ -1,42 +1,50 @@
-import * as THREE from "three";
+import { Vector2 } from "three";
 import Experience from "./Experience.js";
 import OrbitControlsCustom from "./OrbitControlsCustom.js";
 import gsap from "gsap";
+import {
+  ELEMENTS_TO_RAYCAST,
+  ORBIT_CONTROLS_CONFIG,
+  CAMERA_POSITION,
+  CAMERA_QUATERNION,
+  CAMERA_TARGET,
+  ARCADE_MACHINE_CAMERA_POSITION,
+  ARCADE_MACHINE_CAMERA_QUATERNION,
+  ARCADE_MACHINE_CAMERA_TARGET,
+  LEFT_MONITOR_CAMERA_POSITION,
+  LEFT_MONITOR_CAMERA_QUATERNION,
+  LEFT_MONITOR_CAMERA_TARGET,
+  RIGHT_MONITOR_CAMERA_TARGET,
+  RIGHT_MONITOR_CAMERA_POSITION,
+  WHITEBOARD_CAMERA_POSITION,
+  WHITEBOARD_CAMERA_QUATERNION,
+  WHITEBOARD_CAMERA_TARGET,
+  RIGHT_MONITOR_CAMERA_QUATERNION,
+  RUBIK_TARGET,
+  LINKEDIN_URL,
+  GITHUB_URL,
+  ITCHIO_URL,
+} from "./constants.js";
 
-const elementsToRaycast = [
-  "rubikGroup",
-  "linkedin",
-  "github",
-  "itchio",
-  "arcadeMachine",
-  "arcadeMachineScreen",
-  "leftMonitor",
-  "leftMonitorScreen",
-  "rightMonitor",
-  "rightMonitorScreen",
-  "whiteboard",
-  "whiteboardCanvas",
-];
 export default class Navigation {
   constructor() {
     this.experience = new Experience();
     this.bannerLinks = document.querySelectorAll(".banner-link");
     this.backButton = document.getElementById("back-button");
     this.whiteboardButons = document.getElementById("whiteboard-buttons");
+    this.banner = document.querySelector(".banner");
     this.webglElement = this.experience.webglElement;
     this.camera = this.experience.camera;
     this.config = this.experience.config;
     this.scene = this.experience.scene;
-    this.time = this.experience.time;
     this.mouse = this.experience.mouse;
     this.cameraIsMoving = false;
     this.currentStage = null;
     this.outlinePass = this.experience.renderer.postProcess.outlinePass;
     this.raycaster = this.experience.raycaster;
     this.selectedObjects = [];
-    this.startClick = new THREE.Vector2(null, null);
+    this.startClick = new Vector2(null, null);
     this.isCameraMoving = false;
-    this.banner = document.querySelector(".banner");
     this.setNavigation();
     this.activateControls();
   }
@@ -46,20 +54,22 @@ export default class Navigation {
       this.camera.instance,
       this.webglElement
     );
-    this.orbitControls.enabled = false;
-    this.orbitControls.screenSpacePanning = true;
-    this.orbitControls.enableKeys = false;
-    this.orbitControls.zoomSpeed = 1;
-    this.orbitControls.enableDamping = true;
-    this.orbitControls.dampingFactor = 0.05;
-    this.orbitControls.rotateSpeed = 0.4;
-    this.orbitControls.maxAzimuthAngle = Math.PI * 2;
-    this.orbitControls.minAzimuthAngle = -Math.PI / 2;
-    this.orbitControls.minPolarAngle = Math.PI / 6;
-    this.orbitControls.maxPolarAngle = Math.PI / 2;
-    this.orbitControls.minDistance = 2;
-    this.orbitControls.maxDistance = 35;
-    this.orbitControls.target.y = 2.5;
+
+    this.orbitControls.enabled = ORBIT_CONTROLS_CONFIG.enabled;
+    this.orbitControls.screenSpacePanning =
+      ORBIT_CONTROLS_CONFIG.screenSpacePanning;
+    this.orbitControls.enableKeys = ORBIT_CONTROLS_CONFIG.enableKeys;
+    this.orbitControls.zoomSpeed = ORBIT_CONTROLS_CONFIG.zoomSpeed;
+    this.orbitControls.enableDamping = ORBIT_CONTROLS_CONFIG.enableDamping;
+    this.orbitControls.dampingFactor = ORBIT_CONTROLS_CONFIG.dampingFactor;
+    this.orbitControls.rotateSpeed = ORBIT_CONTROLS_CONFIG.rotateSpeed;
+    this.orbitControls.maxAzimuthAngle = ORBIT_CONTROLS_CONFIG.maxAzimuthAngle;
+    this.orbitControls.minAzimuthAngle = ORBIT_CONTROLS_CONFIG.minAzimuthAngle;
+    this.orbitControls.minPolarAngle = ORBIT_CONTROLS_CONFIG.minPolarAngle;
+    this.orbitControls.maxPolarAngle = ORBIT_CONTROLS_CONFIG.maxPolarAngle;
+    this.orbitControls.minDistance = ORBIT_CONTROLS_CONFIG.minDistance;
+    this.orbitControls.maxDistance = ORBIT_CONTROLS_CONFIG.maxDistance;
+    this.orbitControls.target.y = ORBIT_CONTROLS_CONFIG.target.y;
     this.orbitControls.update();
     this.orbitControls.addEventListener("change", this.handleBannerVisibility);
     this.bannerLinks.forEach((link) => {
@@ -91,16 +101,21 @@ export default class Navigation {
         this.currentStage !== "rubikGroup"
       ) {
         this.orbitControls.enabled = false;
-        this.moveCamera(-23, 17, 23, 1);
+        this.moveCamera(
+          CAMERA_POSITION.x,
+          CAMERA_POSITION.y,
+          CAMERA_POSITION.z,
+          1
+        );
         this.rotateCamera(
-          -0.19229498096591757,
-          -0.3743024144764491,
-          -0.07965118909235921,
-          0.9036459654580388,
+          CAMERA_QUATERNION.x,
+          CAMERA_QUATERNION.y,
+          CAMERA_QUATERNION.z,
+          CAMERA_QUATERNION.w,
           1.15,
           null
         );
-        this.changeTarget(0, 2.5, 0, 1);
+        this.changeTarget(CAMERA_TARGET.x, CAMERA_TARGET.y, CAMERA_TARGET.z, 1);
         this.backButton.classList.remove("show-back-button");
       }
     });
@@ -108,10 +123,19 @@ export default class Navigation {
   bringSceneBack = () => {
     this.orbitControls.enabled = false;
     this.expandScene(this.experience.scene, this.sceneResult);
-    this.expandScene(this.experience.cssScene, this.cssSceneResult);
-    this.expandScene(this.experience.cssScene1, this.cssScene1Result);
-    this.expandScene(this.experience.cssScene2, this.cssScene2Result);
-    this.changeTarget(0, 2.5, 0, 1);
+    this.expandScene(
+      this.experience.cssArcadeMachineScene,
+      this.cssArcadeMachineSceneResult
+    );
+    this.expandScene(
+      this.experience.cssLeftMonitorScene,
+      this.cssLeftMonitorSceneResult
+    );
+    this.expandScene(
+      this.experience.cssRightMonitorScene,
+      this.cssRightMonitorSceneResult
+    );
+    this.changeTarget(CAMERA_TARGET.x, CAMERA_TARGET.y, CAMERA_TARGET.z, 1);
     this.backButton.classList.remove("show-back-button");
   };
   activateControls() {
@@ -131,7 +155,7 @@ export default class Navigation {
     this.raycaster.setFromCamera(this.mouse, this.camera.instance);
 
     const sceneToRaycast = this.scene.children.filter((child) => {
-      return elementsToRaycast.includes(child.name);
+      return ELEMENTS_TO_RAYCAST.includes(child.name);
     });
     const intersects = this.raycaster.intersectObjects(sceneToRaycast, true);
     if (intersects && intersects.length) {
@@ -171,7 +195,7 @@ export default class Navigation {
       this.currentStage == null &&
       !this.isCameraMoving &&
       this.experience.world?.rubiksCube?.isPlaced &&
-      !this.experience.world?.confetti?.isExploded &&
+      !this.experience.world?.confetti?.hasExploded &&
       this.experience.world.resources.loader.resourcesLoaded
     ) {
       this.checkIntersection();
@@ -214,41 +238,79 @@ export default class Navigation {
         this.backButton.classList.add("show-back-button");
         this.cameraIsMoving = true;
         this.orbitControls.enabled = false;
-        this.moveCamera(-1.7, 5.5, 2.3009, 1);
+        this.moveCamera(
+          ARCADE_MACHINE_CAMERA_POSITION.x,
+          ARCADE_MACHINE_CAMERA_POSITION.y,
+          ARCADE_MACHINE_CAMERA_POSITION.z,
+          1
+        );
         this.rotateCamera(
-          -0.17756084520729903,
-          -0.6844502511134536,
-          -0.17756084520729903,
-          0.6844502511134535,
+          ARCADE_MACHINE_CAMERA_QUATERNION.x,
+          ARCADE_MACHINE_CAMERA_QUATERNION.y,
+          ARCADE_MACHINE_CAMERA_QUATERNION.z,
+          ARCADE_MACHINE_CAMERA_QUATERNION.w,
           1.15,
           key
         );
-        this.changeTarget(3.25776, 2.74209, 2.3009, 1);
+        this.changeTarget(
+          ARCADE_MACHINE_CAMERA_TARGET.x,
+          ARCADE_MACHINE_CAMERA_TARGET.y,
+          ARCADE_MACHINE_CAMERA_TARGET.z,
+          1
+        );
         this.clickOnActivity();
         break;
       case "leftMonitor":
         this.backButton.classList.add("show-back-button");
         this.cameraIsMoving = true;
         this.orbitControls.enabled = false;
-        this.moveCamera(1.06738, 2.60725, -1.6, 1);
-        this.rotateCamera(0, 0, 0, 1, 1.15, key);
-        this.changeTarget(1.06738, 2.50725, -4.23009, 1);
+        this.moveCamera(
+          LEFT_MONITOR_CAMERA_POSITION.x,
+          LEFT_MONITOR_CAMERA_POSITION.y,
+          LEFT_MONITOR_CAMERA_POSITION.z,
+          1
+        );
+        this.rotateCamera(
+          LEFT_MONITOR_CAMERA_QUATERNION.x,
+          LEFT_MONITOR_CAMERA_QUATERNION.y,
+          LEFT_MONITOR_CAMERA_QUATERNION.z,
+          LEFT_MONITOR_CAMERA_QUATERNION.w,
+          1.15,
+          key
+        );
+        this.changeTarget(
+          LEFT_MONITOR_CAMERA_TARGET.x,
+          LEFT_MONITOR_CAMERA_TARGET.y,
+          LEFT_MONITOR_CAMERA_TARGET.z,
+          1
+        );
         this.clickOnActivity();
         break;
       case "rightMonitor":
         this.backButton.classList.add("show-back-button");
         this.cameraIsMoving = true;
         this.orbitControls.enabled = false;
-        this.moveCamera(1, 2.50725, -0.5, 1);
+
+        this.moveCamera(
+          RIGHT_MONITOR_CAMERA_POSITION.x,
+          RIGHT_MONITOR_CAMERA_POSITION.y,
+          RIGHT_MONITOR_CAMERA_POSITION.z,
+          1
+        );
         this.rotateCamera(
-          -0.000011226346092707907,
-          -0.19150733569303596,
-          -0.000002190470652534808,
-          0.9814911819496523,
+          RIGHT_MONITOR_CAMERA_QUATERNION.x,
+          RIGHT_MONITOR_CAMERA_QUATERNION.y,
+          RIGHT_MONITOR_CAMERA_QUATERNION.z,
+          RIGHT_MONITOR_CAMERA_QUATERNION.w,
           1.15,
           key
         );
-        this.changeTarget(2.47898, 2.50716, -4.14566, 1);
+        this.changeTarget(
+          RIGHT_MONITOR_CAMERA_TARGET.x,
+          RIGHT_MONITOR_CAMERA_TARGET.y,
+          RIGHT_MONITOR_CAMERA_TARGET.z,
+          1
+        );
         this.clickOnActivity();
         break;
       case "whiteboard":
@@ -256,16 +318,26 @@ export default class Navigation {
         this.whiteboardButons.classList.add("show-button-row");
         this.cameraIsMoving = true;
         this.orbitControls.enabled = false;
-        this.moveCamera(-3.3927, 5.18774, 4.61366, 1);
+        this.moveCamera(
+          WHITEBOARD_CAMERA_POSITION.x,
+          WHITEBOARD_CAMERA_POSITION.y,
+          WHITEBOARD_CAMERA_POSITION.z,
+          1
+        );
         this.rotateCamera(
-          -0.08802977047890838,
-          0,
-          0,
-          0.9961178441878403,
+          WHITEBOARD_CAMERA_QUATERNION.x,
+          WHITEBOARD_CAMERA_QUATERNION.y,
+          WHITEBOARD_CAMERA_QUATERNION.z,
+          WHITEBOARD_CAMERA_QUATERNION.w,
           1.15,
           key
         );
-        this.changeTarget(-3.3927, 3.18774, -4.61366, 1);
+        this.changeTarget(
+          WHITEBOARD_CAMERA_TARGET.x,
+          WHITEBOARD_CAMERA_TARGET.y,
+          WHITEBOARD_CAMERA_TARGET.z,
+          1
+        );
         this.clickOnActivity();
         break;
       case "rubikGroup":
@@ -273,29 +345,40 @@ export default class Navigation {
         this.orbitControls.enabled = false;
         this.experience.world.rubiksCube.reubicateCube();
         this.sceneResult = this.shrinkScene(this.experience.scene);
-        this.cssSceneResult = this.shrinkScene(this.experience.cssScene);
-        this.cssScene1Result = this.shrinkScene(this.experience.cssScene1);
-        this.cssScene2Result = this.shrinkScene(this.experience.cssScene2);
-        this.moveCamera(-23, 17, 23, 0.3);
+        this.cssArcadeMachineSceneResult = this.shrinkScene(
+          this.experience.cssArcadeMachineScene
+        );
+        this.cssLeftMonitorSceneResult = this.shrinkScene(
+          this.experience.cssLeftMonitorScene
+        );
+        this.cssRightMonitorSceneResult = this.shrinkScene(
+          this.experience.cssRightMonitorScene
+        );
+        this.moveCamera(
+          CAMERA_POSITION.x,
+          CAMERA_POSITION.y,
+          CAMERA_POSITION.z,
+          0.3
+        );
         this.rotateCamera(
-          -0.19229498096591757,
-          -0.3743024144764491,
-          -0.07965118909235921,
-          0.9036459654580388,
+          CAMERA_QUATERNION.x,
+          CAMERA_QUATERNION.y,
+          CAMERA_QUATERNION.z,
+          CAMERA_QUATERNION.w,
           1.15,
           key
         );
-        this.changeTarget(0, 0, 0, 1);
+        this.changeTarget(RUBIK_TARGET.x, RUBIK_TARGET.y, RUBIK_TARGET.z, 1);
         this.clickOnActivity();
         break;
       case "linkedin":
-        window.open("https://www.linkedin.com/in/joan-ramos-refusta/");
+        window.open(LINKEDIN_URL);
         break;
       case "github":
-        window.open("https://github.com/jrefusta");
+        window.open(GITHUB_URL);
         break;
       case "itchio":
-        window.open("https://jrefusta.itch.io/");
+        window.open(ITCHIO_URL);
         break;
     }
   };
@@ -356,7 +439,6 @@ export default class Navigation {
   }
 
   shrinkScene(scene) {
-    console.log(scene.children);
     const originalPos = [];
     const originalScale = [];
     scene.children.forEach((child) => {
@@ -392,7 +474,6 @@ export default class Navigation {
   }
 
   expandScene(scene, result) {
-    console.log(scene.children);
     scene.children.forEach((child, i) => {
       if (
         child.type != "PerspectiveCamera" &&
@@ -448,7 +529,6 @@ export default class Navigation {
   };
 
   deactivateActivityControls = () => {
-    console.log("bye, ", this.currentStage);
     switch (this.currentStage) {
       case "arcadeMachine":
         this.experience.world.arcadeScreen.deactivateControls();

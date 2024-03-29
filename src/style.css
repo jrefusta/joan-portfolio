@@ -20,17 +20,17 @@ body {
   pointer-events: auto;
 }
 
-#css {
+#cssArcadeMachine {
   pointer-events: none;
   cursor: pointer;
 }
 
-#css1 {
+#cssLeftMonitor {
   pointer-events: none;
   cursor: pointer;
 }
 
-#css2 {
+#cssRightMonitor {
   pointer-events: none;
   cursor: pointer;
 }
@@ -92,7 +92,7 @@ body {
   transition: opacity 1s, visibility 1s, background-size 0.2s ease-in-out;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
   z-index: 2;
-  background-image: url("../static/assets/arrow-back.svg");
+  background-image: url("../static/assets/svg/arrow-back.svg");
   background-size: 70%;
   background-position: center;
   background-repeat: no-repeat;
@@ -140,7 +140,7 @@ body {
   cursor: pointer;
   transition: background-size 0.5s ease;
 }
-/* Estilos del botón de audio */
+
 .audio-button {
   transition: opacity 1s, visibility 1s, background-size 0.2s ease-in-out,
     0.2s ease-in-out;
@@ -155,7 +155,7 @@ body {
   justify-content: center;
   cursor: pointer;
   margin: 0 1vw;
-  position: relative; /* Añadido para posicionar el slider */
+  position: relative;
 }
 
 .audio-button .slider {

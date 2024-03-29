@@ -1,38 +1,50 @@
-import * as THREE from "three";
+import {
+  Vector2,
+  ShaderMaterial,
+  DoubleSide,
+  NoBlending,
+  PlaneGeometry,
+  Mesh,
+} from "three";
+
 import Experience from "./Experience.js";
 import { CSS3DObject } from "three/examples/jsm/renderers/CSS3DRenderer.js";
 import fragmentShader from "./shaders/screenEffect/fragment.glsl";
 import vertexShader from "./shaders/screenEffect/vertex.glsl";
+import {
+  ARCADE_SCREEN_WIDTH,
+  ARCADE_SCREEN_HEIGHT,
+  ARCADE_CSS_OBJECT_SCALE,
+  ARCADE_CSS_OBJECT_POSITION,
+  ARCADE_CSS_OBJECT_ROTATION_X,
+  ARCADE_CSS_OBJECT_ROTATION_Y,
+  CRT_UNIFORMS,
+  ARCADE_IFRAME_SRC,
+  ARCADE_IFRAME_PADDING,
+} from "./constants.js";
 
 export default class ArcadeScreen {
   constructor() {
     this.experience = new Experience();
     this.webglElement = this.experience.webglElement;
     this.renderer = this.experience.renderer.instance;
-    this.cssScene = this.experience.cssScene;
+    this.cssArcadeMachineScene = this.experience.cssArcadeMachineScene;
     this.scene = this.experience.scene;
     this.resources = this.experience.resources;
     this.mouse = this.experience.mouse;
-    this.screenSize = new THREE.Vector2(1006.986, 1210.1182617331252);
+    this.screenSize = new Vector2(ARCADE_SCREEN_WIDTH, ARCADE_SCREEN_HEIGHT);
     this.model = {};
+    this.arcadeMachineMaterial = this.experience.world.baked.model.material2;
+    this.maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
     this.setModel();
     this.setArcadeScreen();
   }
 
   setModel = () => {
     this.model.arcadeMachineModel = this.resources.items.arcadeMachine.scene;
-
-    this.model.bakedTexture = this.resources.items._baked2;
-    this.model.bakedTexture.anisotropic =
-      this.renderer.capabilities.getMaxAnisotropy();
-    this.model.bakedTexture.flipY = false;
-    this.model.bakedTexture.colorSpace = THREE.SRGBColorSpace;
-    this.model.material = new THREE.MeshBasicMaterial({
-      map: this.model.bakedTexture,
-    });
-    this.model.arcadeMachineModel.traverse((_child) => {
-      if (_child instanceof THREE.Mesh) {
-        _child.material = this.model.material;
+    this.model.arcadeMachineModel.traverse((child) => {
+      if (child.isMesh) {
+        child.material = this.arcadeMachineMaterial;
       }
     });
     this.model.arcadeMachineModel.name = "arcadeMachine";
@@ -43,16 +55,14 @@ export default class ArcadeScreen {
     const container = document.createElement("div");
     container.style.width = this.screenSize.width + "px";
     container.style.height = this.screenSize.height + "px";
-    container.style.opacity = "1";
 
     const iframe = document.createElement("iframe");
 
-    iframe.src = "https://joan-arcade-machine.vercel.app";
+    iframe.src = ARCADE_IFRAME_SRC;
     iframe.style.width = this.screenSize.width + "px";
     iframe.style.height = this.screenSize.height + "px";
-    iframe.style.padding = 16 + "px";
+    iframe.style.padding = ARCADE_IFRAME_PADDING;
 
-    iframe.style.opacity = "1";
     iframe.style.transparent = true;
     iframe.id = "arcade-screen";
     iframe.style.boxSizing = "border-box";
@@ -62,52 +72,48 @@ export default class ArcadeScreen {
       this.iframeWindow = iframe.contentWindow;
     });
 
-    // Add iframe to container
     const css3dobject = new CSS3DObject(container);
 
-    css3dobject.scale.set(0.00102, 0.00102, 0.00102);
-    css3dobject.position.set(3.24776, 2.7421, 2.3009);
-    css3dobject.rotateY(-Math.PI / 2);
-    css3dobject.rotateX(-Math.PI / 7);
-    this.cssScene.add(css3dobject);
-    const materialCRT = new THREE.ShaderMaterial({
-      blending: THREE.NoBlending,
-      side: THREE.DoubleSide,
+    css3dobject.scale.copy(ARCADE_CSS_OBJECT_SCALE);
+    css3dobject.position.copy(ARCADE_CSS_OBJECT_POSITION);
+    css3dobject.rotateY(ARCADE_CSS_OBJECT_ROTATION_Y);
+    css3dobject.rotateX(ARCADE_CSS_OBJECT_ROTATION_X);
+    this.cssArcadeMachineScene.add(css3dobject);
+    const materialCRT = new ShaderMaterial({
+      blending: NoBlending,
+      side: DoubleSide,
       uniforms: {
-        curvature: { value: new THREE.Vector2(3, 3) },
-        screenResolution: {
-          value: new THREE.Vector2(
-            this.screenSize.width / 5,
-            this.screenSize.height / 5
-          ),
+        uCurvature: { value: CRT_UNIFORMS.uCurvature },
+        uScreenResolution: {
+          value: CRT_UNIFORMS.uScreenResolution,
         },
-        scanLineOpacity: {
-          value: new THREE.Vector2(0.5, 0.5),
+        uScanLineOpacity: {
+          value: CRT_UNIFORMS.uScanLineOpacity,
         },
         uBaseColor: {
-          value: new THREE.Color(0.1, 0.1, 0.1).convertSRGBToLinear(),
+          value: CRT_UNIFORMS.uBaseColor,
         },
         uColor: {
-          value: new THREE.Color(0.0, 0.0, 0.0).convertSRGBToLinear(),
+          value: CRT_UNIFORMS.uColor,
         },
-        vignetteOpacity: {
-          value: 1,
+        uVignetteOpacity: {
+          value: CRT_UNIFORMS.uVignetteOpacity,
         },
-        brightness: { value: 2.5 },
-        vignetteRoundness: {
-          value: 1,
+        uBrightness: { value: CRT_UNIFORMS.uBrightness },
+        uVignetteRoundness: {
+          value: CRT_UNIFORMS.uVignetteOpacity,
         },
       },
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
     });
     // Create plane geometry
-    const geometry = new THREE.PlaneGeometry(
+    const geometry = new PlaneGeometry(
       this.screenSize.width,
       this.screenSize.height
     );
     // Create the GL plane mesh
-    this.model.screen = new THREE.Mesh(geometry, materialCRT);
+    this.model.screen = new Mesh(geometry, materialCRT);
 
     // Copy the position, rotation and scale of the CSS plane to the GL plane
     this.model.screen.position.copy(css3dobject.position);
@@ -130,9 +136,7 @@ export default class ArcadeScreen {
     this.iframeWindow.postMessage({ type: "keyUpParent", key: event.key }, "*");
   };
 
-  onMouseMove = (event) => {
-    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  onMouseMove = () => {
     if (
       this.objectRaycasted &&
       this.objectRaycasted.object &&

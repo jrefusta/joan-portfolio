@@ -1,18 +1,19 @@
 varying vec2 vUv;
-uniform vec2 curvature;
-uniform vec2 screenResolution;
-uniform vec2 scanLineOpacity;
+uniform vec2 uCurvature;
+uniform vec2 uScreenResolution;
+uniform vec2 uScanLineOpacity;
 uniform vec3 uBaseColor;
 uniform vec3 uColor;
-uniform float vignetteOpacity;
-uniform float brightness;
-uniform float vignetteRoundness;
+uniform float uVignetteOpacity;
+uniform float uBrightness;
+uniform float uVignetteRoundness;
 float PI = 3.1415926538;
+
 vec2 curveRemapUV(vec2 uv)
 {
     // as we near the edge of our screen apply greater distortion using a sinusoid.
     uv = uv * 2.0 - 1.0;
-    vec2 offset = abs(uv.yx) / vec2(curvature.x, curvature.y);
+    vec2 offset = abs(uv.yx) / vec2(uCurvature.x, uCurvature.y);
     uv = uv + uv * offset * offset;
     uv = uv * 0.5 + 0.5;
     return uv;
@@ -36,12 +37,12 @@ void main(void)
     vec2 remappedUV = curveRemapUV(vec2(vUv.x, vUv.y));
     vec4 baseColor = vec4(uBaseColor, 0.00001);
 
-    baseColor *= vignetteIntensity(remappedUV, screenResolution, vignetteOpacity, vignetteRoundness);
+    baseColor *= vignetteIntensity(remappedUV, uScreenResolution, uVignetteOpacity, uVignetteRoundness);
 
-    baseColor *= scanLineIntensity(remappedUV.x, screenResolution.y, scanLineOpacity.x);
-    baseColor *= scanLineIntensity(remappedUV.y, screenResolution.x, scanLineOpacity.y);
+    baseColor *= scanLineIntensity(remappedUV.x, uScreenResolution.y, uScanLineOpacity.x);
+    baseColor *= scanLineIntensity(remappedUV.y, uScreenResolution.x, uScanLineOpacity.y);
 
-    baseColor *= vec4(vec3(brightness), 1.0);
+    baseColor *= vec4(vec3(uBrightness), 1.0);
 
     if (remappedUV.x < 0.0 || remappedUV.y < 0.0 || remappedUV.x > 1.0 || remappedUV.y > 1.0){
         gl_FragColor = vec4(uColor, 0.001);

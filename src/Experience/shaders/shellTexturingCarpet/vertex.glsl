@@ -1,16 +1,16 @@
 varying vec2 vUv;
 varying vec3 vNormal;
 
-uniform float shellCount;
-uniform float shellIndex;
-uniform float shellLength;
+uniform float uShellCount;
+uniform float uShellIndex;
+uniform float uShellLength;
 
 void main() {
-  float shellHeight = shellIndex / shellCount;
+  float shellHeight = uShellIndex / uShellCount;
   shellHeight = pow(shellHeight, 0.1);
 
   vec3 vPosition = position;
-  vPosition += normal.xyz * shellLength * shellHeight;
+  vPosition += normal.xyz * uShellLength * shellHeight;
   vUv = uv;
   vNormal = normalize(mat3(normalMatrix) * normal);
   float k = pow(shellHeight, 0.1);

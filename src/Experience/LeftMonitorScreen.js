@@ -1,25 +1,41 @@
-import * as THREE from "three";
+import {
+  Mesh,
+  PlaneGeometry,
+  NoBlending,
+  Vector2,
+  MeshLambertMaterial,
+} from "three";
 import Experience from "./Experience.js";
 import { CSS3DObject } from "three/examples/jsm/renderers/CSS3DRenderer.js";
+import {
+  MONITOR_SCREEN_WIDTH,
+  MONITOR_SCREEN_HEIGHT,
+  MONITOR_IFRAME_PADDING,
+  LEFT_MONITOR_IFRAME_SRC,
+  LEFT_MONITOR_CSS_OBJECT_POSITION,
+  LEFT_MONITOR_CSS_OBJECT_SCALE,
+} from "./constants.js";
 
 export default class LeftMonitorScreen {
   constructor() {
     this.experience = new Experience();
     this.webglElement = this.experience.webglElement;
-    this.cssElement1 = this.experience.cssElement1;
-    this.cssScene1 = this.experience.cssScene1;
-    this.cssScene2 = this.experience.cssScene2;
+    this.cssLeftMonitor = this.experience.cssLeftMonitor;
+    this.cssLeftMonitorScene = this.experience.cssLeftMonitorScene;
     this.resources = this.experience.resources;
     this.renderer = this.experience.renderer.instance;
     this.scene = this.experience.scene;
-    this.world = this.experience.world;
     this.raycaster = this.experience.raycaster;
     this.mouse = this.experience.mouse;
     this.navigation = this.experience.navigation;
+    this.materialLeftMonitor = this.experience.world.baked.model.material2;
     this.isActive = false;
     this.camera = this.experience.camera;
     this.objectRaycasted = null;
-    this.screenMonitorSize = new THREE.Vector2(1370.1780000000001, 764.798);
+    this.screenMonitorSize = new Vector2(
+      MONITOR_SCREEN_WIDTH,
+      MONITOR_SCREEN_HEIGHT
+    );
     this.model = {};
     this.setModel();
     this.setLeftMonitorScreen();
@@ -28,18 +44,9 @@ export default class LeftMonitorScreen {
   setModel() {
     this.model.mesh = this.resources.items.leftMonitor.scene;
 
-    this.model.bakedDayTexture = this.resources.items._baked2;
-    this.model.bakedDayTexture.flipY = false;
-    this.model.bakedDayTexture.colorSpace = THREE.SRGBColorSpace;
-
-    this.model.bakedDayTexture.anisotropic =
-      this.renderer.capabilities.getMaxAnisotropy();
-    this.model.material = new THREE.MeshBasicMaterial({
-      map: this.model.bakedDayTexture,
-    });
-    this.model.mesh.traverse((_child) => {
-      if (_child instanceof THREE.Mesh) {
-        _child.material = this.model.material;
+    this.model.mesh.traverse((child) => {
+      if (child.isMesh) {
+        child.material = this.materialLeftMonitor;
       }
     });
     this.model.mesh.name = "leftMonitor";
@@ -47,73 +54,69 @@ export default class LeftMonitorScreen {
   }
 
   setLeftMonitorScreen() {
-    const container1 = document.createElement("div");
-    container1.style.width = this.screenMonitorSize.width + "px";
-    container1.style.height = this.screenMonitorSize.height + "px";
-    container1.style.opacity = "1";
+    const container = document.createElement("div");
+    container.style.width = this.screenMonitorSize.width + "px";
+    container.style.height = this.screenMonitorSize.height + "px";
 
-    const iframe1 = document.createElement("iframe");
+    const iframe = document.createElement("iframe");
 
-    iframe1.src = "http://192.168.1.72:8082/";
-    iframe1.style.width = this.screenMonitorSize.width + "px";
-    iframe1.style.height = this.screenMonitorSize.height + "px";
-    iframe1.style.padding = 8 + "px";
+    iframe.src = LEFT_MONITOR_IFRAME_SRC;
+    iframe.style.width = this.screenMonitorSize.width + "px";
+    iframe.style.height = this.screenMonitorSize.height + "px";
+    iframe.style.padding = MONITOR_IFRAME_PADDING;
 
-    iframe1.style.opacity = "1";
-    iframe1.style.transparent = true;
-    iframe1.id = "left-monitor-screen";
-    iframe1.style.boxSizing = "border-box";
-    iframe1.style.background = "black";
-    container1.appendChild(iframe1);
+    iframe.style.transparent = true;
+    iframe.id = "left-monitor-screen";
+    iframe.style.boxSizing = "border-box";
+    iframe.style.background = "black";
+    container.appendChild(iframe);
 
-    const css3dobject1 = new CSS3DObject(container1);
+    const css3dobject = new CSS3DObject(container);
 
-    css3dobject1.scale.set(0.00102, 0.00102, 1);
-    css3dobject1.position.set(1.06738, 2.50725, -4.23009);
-    this.cssScene1.add(css3dobject1);
+    css3dobject.position.copy(LEFT_MONITOR_CSS_OBJECT_POSITION);
+    css3dobject.scale.copy(LEFT_MONITOR_CSS_OBJECT_SCALE);
+    this.cssLeftMonitorScene.add(css3dobject);
 
-    const material = new THREE.MeshLambertMaterial({ color: "black" });
-    material.side = THREE.DoubleSide;
-    material.opacity = 0;
-    material.transparent = true;
-    // NoBlending allows the GL plane to occlude the CSS plane
-    material.blending = THREE.NoBlending;
+    const material = new MeshLambertMaterial({
+      color: "black",
+      opacity: 0,
+      transparent: true,
+      blending: NoBlending,
+    });
 
-    const geometry1 = new THREE.PlaneGeometry(
+    const geometry = new PlaneGeometry(
       this.screenMonitorSize.width,
       this.screenMonitorSize.height
     );
-    // Create the GL plane mesh
 
-    const screen = new THREE.Mesh(geometry1, material);
-    screen.position.copy(css3dobject1.position);
-    screen.rotation.copy(css3dobject1.rotation);
-    screen.scale.copy(css3dobject1.scale);
+    const screen = new Mesh(geometry, material);
+    screen.position.copy(css3dobject.position);
+    screen.rotation.copy(css3dobject.rotation);
+    screen.scale.copy(css3dobject.scale);
     screen.name = "leftMonitorScreen";
-    // Add to gl scene
     this.model.mesh.add(screen);
   }
+
   activateControls() {
-    // Configurar eventos del mouse
     window.addEventListener("pointermove", this.onMouseMove, false);
     window.addEventListener("message", this.receiveMessage, false);
-    this.cssElement1.style.pointerEvents = "auto";
+    this.cssLeftMonitor.style.pointerEvents = "auto";
     this.isActive = true;
   }
+
   deactivateControls() {
-    // Configurar eventos del mouse
     window.removeEventListener("pointermove", this.onMouseMove, false);
     window.removeEventListener("message", this.receiveMessage, false);
-    this.cssElement1.style.pointerEvents = "none";
+    this.cssLeftMonitor.style.pointerEvents = "none";
 
     this.isActive = false;
   }
+
   receiveMessage = (event) => {
     this.navigation.flyToPosition("rightMonitor");
   };
-  onMouseMove = (event) => {
-    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  onMouseMove = () => {
     if (
       this.objectRaycasted &&
       this.objectRaycasted.object &&

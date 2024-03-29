@@ -1,27 +1,25 @@
-import * as THREE from "three";
+import { PerspectiveCamera } from "three";
 import Experience from "./Experience.js";
+import { CAMERA_POSITION } from "./constants.js";
 
 export default class Camera {
   constructor() {
     this.experience = new Experience();
     this.config = this.experience.config;
-    this.time = this.experience.time;
-    this.sizes = this.experience.sizes;
-    this.webglElement = this.experience.webglElement;
     this.scene = this.experience.scene;
     this.setInstance();
   }
 
   setInstance = () => {
     // Set up
-    this.instance = new THREE.PerspectiveCamera(
+    this.instance = new PerspectiveCamera(
       20,
       this.config.width / this.config.height,
       0.1,
       1000
     );
     this.instance.rotation.reorder("YXZ");
-    this.instance.position.set(-23, 17, 23);
+    this.instance.position.copy(CAMERA_POSITION);
 
     this.scene.add(this.instance);
   };

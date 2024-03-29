@@ -1,4 +1,10 @@
-import * as THREE from "three";
+import {
+  Color,
+  WebGLRenderer,
+  Vector2,
+  WebGLRenderTarget,
+  LinearFilter,
+} from "three";
 import Experience from "./Experience.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
@@ -12,18 +18,16 @@ export default class Renderer {
   constructor(_options = {}) {
     this.experience = new Experience();
     this.webglElement = this.experience.webglElement;
-    this.cssElement = this.experience.cssElement;
-    this.cssElement1 = this.experience.cssElement1;
-    this.cssElement2 = this.experience.cssElement2;
+    this.cssArcadeMachine = this.experience.cssArcadeMachine;
+    this.cssLeftMonitor = this.experience.cssLeftMonitor;
+    this.cssRightMonitor = this.experience.cssRightMonitor;
     this.config = this.experience.config;
-    this.stats = this.experience.stats;
-    this.time = this.experience.time;
     this.sizes = this.experience.sizes;
     this.scene = this.experience.scene;
     this.camera = this.experience.camera;
-    this.cssScene = this.experience.cssScene;
-    this.cssScene1 = this.experience.cssScene1;
-    this.cssScene2 = this.experience.cssScene2;
+    this.cssArcadeMachineScene = this.experience.cssArcadeMachineScene;
+    this.cssLeftMonitorScene = this.experience.cssLeftMonitorScene;
+    this.cssRightMonitorScene = this.experience.cssRightMonitorScene;
     this.usePostprocess = true;
 
     this.setInstance();
@@ -31,10 +35,9 @@ export default class Renderer {
   }
 
   setInstance() {
-    this.clearColor = new THREE.Color(0x072446).convertSRGBToLinear();
-    //this.clearColor = new THREE.Color(0xeda72d).convertSRGBToLinear();
     // Renderer
-    this.instance = new THREE.WebGLRenderer({
+    this.clearColor = new Color(0x072446).convertSRGBToLinear();
+    this.instance = new WebGLRenderer({
       antialias: true,
       powerPreference: "high-performance",
     });
@@ -44,45 +47,32 @@ export default class Renderer {
     this.instance.domElement.style.width = "100%";
     this.instance.domElement.style.height = "100%";
 
-    // this.instance.setClearColor(0x414141, 1)
     this.instance.setClearColor(this.clearColor, 1);
     this.instance.setSize(this.config.width, this.config.height);
     this.instance.setPixelRatio(this.config.pixelRatio);
     this.instance.localClippingEnabled = true;
-
-    // this.instance.physicallyCorrectLights = true
-    // this.instance.gammaOutPut = true
     this.instance.outputColorSpace = "srgb";
+
     this.webglElement.appendChild(this.instance.domElement);
-    // this.instance.shadowMap.type = THREE.PCFSoftShadowMap
-    // this.instance.shadowMap.enabled = false
-    //this.instance.toneMapping = THREE.ReinhardToneMapping;
-    //this.instance.toneMappingExposure = 0.3;
-    this.cssInstance = new CSS3DRenderer();
-    this.cssInstance.setSize(this.sizes.width, this.sizes.height);
-    this.cssInstance.domElement.style.position = "absolute";
-    this.cssInstance.domElement.style.top = "0px";
-    this.cssInstance1 = new CSS3DRenderer();
-    this.cssInstance1.setSize(this.sizes.width, this.sizes.height);
-    this.cssInstance1.domElement.style.position = "absolute";
-    this.cssInstance1.domElement.style.top = "0px";
-    /*     this.cssElement1.style.pointerEvents = "auto";
-    this.webglElement.style.pointerEvents = "none"; */
 
-    this.cssInstance2 = new CSS3DRenderer();
-    this.cssInstance2.setSize(this.sizes.width, this.sizes.height);
-    this.cssInstance2.domElement.style.position = "absolute";
-    this.cssInstance2.domElement.style.top = "0px";
+    this.cssArcadeMachineInstance = new CSS3DRenderer();
+    this.cssArcadeMachineInstance.setSize(this.sizes.width, this.sizes.height);
+    this.cssArcadeMachineInstance.domElement.style.position = "absolute";
+    this.cssArcadeMachineInstance.domElement.style.top = "0px";
 
-    this.cssElement.appendChild(this.cssInstance.domElement);
-    this.cssElement1.appendChild(this.cssInstance1.domElement);
-    this.cssElement2.appendChild(this.cssInstance2.domElement);
-    // Add stats panel
-    this.context = this.instance.getContext();
+    this.cssLeftMonitorInstance = new CSS3DRenderer();
+    this.cssLeftMonitorInstance.setSize(this.sizes.width, this.sizes.height);
+    this.cssLeftMonitorInstance.domElement.style.position = "absolute";
+    this.cssLeftMonitorInstance.domElement.style.top = "0px";
 
-    if (this.stats) {
-      this.stats.setRenderPanel(this.context);
-    }
+    this.cssRightMonitorInstance = new CSS3DRenderer();
+    this.cssRightMonitorInstance.setSize(this.sizes.width, this.sizes.height);
+    this.cssRightMonitorInstance.domElement.style.position = "absolute";
+    this.cssRightMonitorInstance.domElement.style.top = "0px";
+
+    this.cssArcadeMachine.appendChild(this.cssArcadeMachineInstance.domElement);
+    this.cssLeftMonitor.appendChild(this.cssLeftMonitorInstance.domElement);
+    this.cssRightMonitor.appendChild(this.cssRightMonitorInstance.domElement);
   }
 
   setPostProcess() {
@@ -92,7 +82,7 @@ export default class Renderer {
       this.camera.instance
     );
     this.postProcess.outlinePass = new OutlinePass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      new Vector2(window.innerWidth, window.innerHeight),
       this.scene,
       this.camera.instance
     );
@@ -105,14 +95,14 @@ export default class Renderer {
         ? "integrated"
         : "dedicated";
 
-    this.renderTarget = new THREE.WebGLRenderTarget(
+    this.renderTarget = new WebGLRenderTarget(
       this.config.width,
       this.config.height,
       {
         samples: this.instance.getPixelRatio() >= 2 ? 8 : 4,
         generateMipmaps: false,
-        minFilter: THREE.LinearFilter,
-        magFilter: THREE.LinearFilter,
+        minFilter: LinearFilter,
+        magFilter: LinearFilter,
         colorSpace: "srgb",
       }
     );
@@ -129,7 +119,6 @@ export default class Renderer {
     this.postProcess.composer.addPass(this.postProcess.outlinePass);
     this.postProcess.composer.addPass(this.gammaCorrectionShader);
     if (this.instance.capabilities.isWebGL2) {
-      console.log("smaa");
       const smaaPass = new SMAAPass();
       this.postProcess.composer.addPass(smaaPass);
     }
@@ -139,9 +128,12 @@ export default class Renderer {
     // Instance
     this.instance.setSize(this.config.width, this.config.height);
     this.instance.setPixelRatio(this.config.pixelRatio);
-    this.cssInstance.setSize(this.config.width, this.config.height);
-    this.cssInstance1.setSize(this.config.width, this.config.height);
-    this.cssInstance2.setSize(this.config.width, this.config.height);
+    this.cssArcadeMachineInstance.setSize(
+      this.config.width,
+      this.config.height
+    );
+    this.cssLeftMonitorInstance.setSize(this.config.width, this.config.height);
+    this.cssRightMonitorInstance.setSize(this.config.width, this.config.height);
 
     // Post process
     this.postProcess.composer.setSize(this.config.width, this.config.height);
@@ -149,22 +141,23 @@ export default class Renderer {
   }
 
   update() {
-    if (this.stats) {
-      this.stats.beforeRender();
-    }
-
     if (this.usePostprocess) {
       this.postProcess.composer.render();
     } else {
       this.instance.render(this.scene, this.camera.instance);
     }
-    this.cssInstance.render(this.cssScene, this.camera.instance);
-    this.cssInstance1.render(this.cssScene1, this.camera.instance);
-    this.cssInstance2.render(this.cssScene2, this.camera.instance);
-
-    if (this.stats) {
-      this.stats.afterRender();
-    }
+    this.cssArcadeMachineInstance.render(
+      this.cssArcadeMachineScene,
+      this.camera.instance
+    );
+    this.cssLeftMonitorInstance.render(
+      this.cssLeftMonitorScene,
+      this.camera.instance
+    );
+    this.cssRightMonitorInstance.render(
+      this.cssRightMonitorScene,
+      this.camera.instance
+    );
   }
 
   destroy() {

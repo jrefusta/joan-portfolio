@@ -1,8 +1,10 @@
-import * as THREE from "three";
+import { ShaderMaterial, Mesh, RepeatWrapping, DoubleSide } from "three";
 
 import Experience from "./Experience.js";
 import vertexShader from "./shaders/coffeeSteam/vertex.glsl";
 import fragmentShader from "./shaders/coffeeSteam/fragment.glsl";
+
+import { COFFEE_GEOMETRY, COFFEE_POSITION } from "./constants.js";
 
 export default class CoffeeSteam {
   constructor() {
@@ -15,16 +17,15 @@ export default class CoffeeSteam {
 
   setModel = () => {
     this.model = {};
-
-    this.model.color = "#d1d1d1";
     this.model.perlinTexture = this.resources.items.perlin;
-    this.model.perlinTexture.wrapS = THREE.RepeatWrapping;
-    this.model.perlinTexture.wrapT = THREE.RepeatWrapping;
+    this.model.perlinTexture.wrapS = RepeatWrapping;
+    this.model.perlinTexture.wrapT = RepeatWrapping;
+
     // Material
-    this.model.material = new THREE.ShaderMaterial({
+    this.model.material = new ShaderMaterial({
       transparent: true,
       depthWrite: false,
-      side: THREE.DoubleSide,
+      side: DoubleSide,
       vertexShader,
       fragmentShader,
       uniforms: {
@@ -34,9 +35,9 @@ export default class CoffeeSteam {
     });
 
     // Mesh
-    this.planeGeom = new THREE.PlaneGeometry(0.15, 0.6, 16, 64);
-    this.model.mesh = new THREE.Mesh(this.planeGeom, this.model.material);
-    this.model.mesh.position.set(0.230979, 2.3, -3.64951);
+    this.planeGeom = COFFEE_GEOMETRY;
+    this.model.mesh = new Mesh(this.planeGeom, this.model.material);
+    this.model.mesh.position.copy(COFFEE_POSITION);
     this.model.mesh.name = "coffeeSteam";
     this.scene.add(this.model.mesh);
   };
