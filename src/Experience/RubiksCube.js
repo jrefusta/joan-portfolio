@@ -62,11 +62,28 @@ class RubiksCube {
     }
     this.rubikGroup.name = "rubikGroup";
     this.scene.add(this.rubikGroup);
-    this.movementsStack.push({
-      layer: "col",
-      number: 2,
-      orientation: 1,
-    });
+    this.movementsStack.push(
+      {
+        layer: "col",
+        number: 1,
+        orientation: 1,
+      },
+      {
+        layer: "row",
+        number: 3,
+        orientation: -1,
+      },
+      {
+        layer: "depth",
+        number: 3,
+        orientation: 1,
+      },
+      {
+        layer: "col",
+        number: 1,
+        orientation: -1,
+      }
+    );
     this.startNextMove();
     this.hasBeenSolved = false;
     this.rubikGroup.position.set(
