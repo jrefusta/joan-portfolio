@@ -5,8 +5,13 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
-import { Mesh, CubeTextureLoader, PlaneGeometry, ShaderMaterial } from "three";
-import * as THREE from "three";
+import {
+  Mesh,
+  CubeTextureLoader,
+  PlaneGeometry,
+  ShaderMaterial,
+  Color,
+} from "three";
 import vertexShader from "../shaders/overlayLoading/vertex.glsl";
 import fragmentShader from "../shaders/overlayLoading/fragment.glsl";
 import { gsap } from "gsap";
@@ -142,7 +147,7 @@ export default class Resources extends EventEmitter {
       transparent: true,
       depthTest: false,
       uniforms: {
-        uColor: { value: new THREE.Color(0x072446) },
+        uColor: { value: new Color(0x072446) },
         uAlpha: { value: 1 },
       },
       vertexShader: vertexShader,

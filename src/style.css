@@ -133,12 +133,16 @@ body {
   background-size: 70%;
   background-position: center;
   background-repeat: no-repeat;
-
+  border: 5px solid #ffffff00;
   border-radius: 50%;
   background-color: #0a3362;
   margin: 0px 20px;
   cursor: pointer;
-  transition: background-size 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+.whiteboard-selected {
+  border: 5px solid #eda72d;
 }
 
 .audio-button {

@@ -41,6 +41,10 @@ export default class Whiteboard {
     this.whiteboardButtons.forEach((button) => {
       button.addEventListener("click", () => {
         this.changeWhiteboardColor(button.id);
+        this.whiteboardButtons.forEach((btn) => {
+          btn.classList.remove("whiteboard-selected");
+        });
+        button.classList.add("whiteboard-selected");
       });
     });
     this.model.mesh = this.resources.items.whiteboard.scene;
