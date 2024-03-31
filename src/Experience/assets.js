@@ -11,7 +11,7 @@ export default [
       { name: "rubiksCube", source: "/assets/models/Rubik.glb" },
       {
         name: "skyTexture",
-        source: "/assets/textures/skyTexture.png",
+        source: "/assets/textures/skyTexture.ktx2",
         type: "texture",
       },
       {
