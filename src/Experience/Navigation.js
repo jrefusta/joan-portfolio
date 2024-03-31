@@ -33,6 +33,7 @@ export default class Navigation {
     this.backButton = document.getElementById("back-button");
     this.whiteboardButons = document.getElementById("whiteboard-buttons");
     this.banner = document.querySelector(".banner");
+    this.rubikMessage = document.querySelector(".rubik-message");
     this.webglElement = this.experience.webglElement;
     this.camera = this.experience.camera;
     this.config = this.experience.config;
@@ -121,6 +122,9 @@ export default class Navigation {
     });
   }
   bringSceneBack = () => {
+    if (this.rubikMessage.classList.contains("show-rubik-message")) {
+      this.rubikMessage.classList.remove("show-rubik-message");
+    }
     this.orbitControls.enabled = false;
     this.expandScene(this.experience.scene, this.sceneResult);
     this.expandScene(
@@ -222,6 +226,7 @@ export default class Navigation {
 
   flyToPosition = (key) => {
     if (key !== "rubikGroup" && this.currentStage == "rubikGroup") {
+      this.rubikMessage.classList.remove("show-rubik-message");
       this.bringSceneBack();
       this.experience.world.rubiksCube.resetOriginalConfig();
     }
@@ -341,6 +346,7 @@ export default class Navigation {
         this.clickOnActivity();
         break;
       case "rubikGroup":
+        this.rubikMessage.classList.add("show-rubik-message");
         this.backButton.classList.add("show-back-button");
         this.orbitControls.enabled = false;
         this.experience.world.rubiksCube.reubicateCube();

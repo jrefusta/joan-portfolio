@@ -145,6 +145,26 @@ body {
   border: 5px solid #eda72d;
 }
 
+.rubik-message {
+  text-align: center;
+  visibility: hidden;
+  opacity: 0;
+  color: #eda72d;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  user-select: none;
+  font-size: 1.5rem;
+  transition: opacity 1s ease, visibility 1s ease;
+}
+
+.show-rubik-message {
+  visibility: visible;
+  opacity: 1;
+}
+
 .audio-button {
   transition: opacity 1s, visibility 1s, background-size 0.2s ease-in-out,
     0.2s ease-in-out;
