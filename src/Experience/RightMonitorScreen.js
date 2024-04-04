@@ -35,6 +35,7 @@ export default class RightMonitorScreen {
       MONITOR_SCREEN_HEIGHT
     );
     this.model = {};
+    this.audioManager = this.experience.world.audioManager;
     this.setModel();
     this.setRightMonitorScreen();
   }
@@ -97,13 +98,34 @@ export default class RightMonitorScreen {
 
   activateControls() {
     window.addEventListener("pointermove", this.onMouseMove, false);
+    window.addEventListener("message", this.receiveMessage, false);
     this.isActive = true;
   }
   deactivateControls() {
     window.removeEventListener("pointermove", this.onMouseMove, false);
+    window.removeEventListener("message", this.receiveMessage, false);
     this.isActive = false;
   }
 
+  receiveMessage = (event) => {
+    if (event.data == "footstep01") {
+      this.audioManager.playSingleAudio("footstep01", 0.3);
+    } else if (event.data == "footstep02") {
+      this.audioManager.playSingleAudio("footstep02", 0.3);
+    } else if (event.data == "footstep03") {
+      this.audioManager.playSingleAudio("footstep03", 0.3);
+    } else if (event.data == "vase") {
+      this.audioManager.playSingleAudio("vase_break", 0.3);
+    } else if (event.data == "door") {
+      this.audioManager.playSingleAudio("door", 1);
+    } else if (event.data == "trophy") {
+      this.audioManager.playSingleAudio("trophy", 7);
+    } else if (event.data == "trophy_platinum") {
+      this.audioManager.playSingleAudio("trophy_platinum", 0.5);
+    } else if (event.data == "start") {
+      this.audioManager.playSingleAudio("start", 0.3);
+    }
+  };
   onMouseMove = () => {
     if (
       this.objectRaycasted &&

@@ -11,6 +11,7 @@ import {
   PlaneGeometry,
   ShaderMaterial,
   Color,
+  AudioLoader,
 } from "three";
 import vertexShader from "../shaders/overlayLoading/vertex.glsl";
 import fragmentShader from "../shaders/overlayLoading/fragment.glsl";
@@ -24,6 +25,7 @@ export default class Resources extends EventEmitter {
     super();
     this.banner = document.querySelector(".banner");
     this.loadingScreen = document.querySelector(".loadingScreen");
+    this.audioButton = document.querySelector(".audio-button");
     this.loadingScreen.classList.add("show-loading-screen");
 
     this.experience = new Experience();
@@ -139,6 +141,18 @@ export default class Resources extends EventEmitter {
         });
       },
     });
+
+    // Audio
+    const audioLoader = new AudioLoader();
+
+    this.loaders.push({
+      extensions: ["mp3", "ogg"],
+      action: (_resource) => {
+        audioLoader.load(_resource.source, (buffer) => {
+          this.fileLoadEnd(_resource, buffer);
+        });
+      },
+    });
   }
 
   setOverlayLoading() {
@@ -221,11 +235,27 @@ export default class Resources extends EventEmitter {
 
     this.loadingScreen.style.setProperty("--p", degrees + "deg");
     if (this.loaded == this.toLoad) {
-      if (this.loadingScreen.classList.contains("show-loading-screen")) {
-        this.loadingScreen.classList.remove("show-loading-screen");
-      }
-      this.removeOverlay();
+      this.loadingScreen.classList.add("finished-load");
+
+      setTimeout(() => {
+        this.loadingScreen.textContent = "START";
+        this.loadingScreen.style.cursor = "pointer";
+        this.loadingScreen.classList.add("loading-screen-hover");
+        this.loadingScreen.classList.remove("finished-load");
+
+        const clickHandler = () => {
+          const audioManager = this.experience.world.audioManager;
+          audioManager.playSingleAudio("start", 0.4);
+          audioManager.playLoopAudio("floral", 0.1);
+          this.audioButton.classList.add("show-audio-button");
+          this.loadingScreen.classList.remove("show-loading-screen");
+          this.removeOverlay();
+          this.loadingScreen.removeEventListener("click", clickHandler);
+        };
+        this.loadingScreen.addEventListener("click", clickHandler);
+      }, 1000);
     }
+
     this.trigger("fileEnd", [_resource, _data]);
 
     if (this.loaded === this.toLoad) {

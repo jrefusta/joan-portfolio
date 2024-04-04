@@ -36,6 +36,7 @@ export default class ArcadeScreen {
     this.model = {};
     this.arcadeMachineMaterial = this.experience.world.baked.model.material2;
     this.maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
+    this.audioManager = this.experience.world.audioManager;
     this.setModel();
     this.setArcadeScreen();
   }
@@ -154,10 +155,25 @@ export default class ArcadeScreen {
     window.addEventListener("keydown", this.handleKeyDownParent);
     window.addEventListener("keyup", this.handleKeyUpParent);
     window.addEventListener("pointermove", this.onMouseMove);
+    window.addEventListener("message", this.receiveMessage, false);
   };
   deactivateControls = () => {
     window.removeEventListener("keydown", this.handleKeyDownParent);
     window.removeEventListener("keyup", this.handleKeyUpParent);
     window.removeEventListener("pointermove", this.onMouseMove);
+    window.removeEventListener("message", this.receiveMessage, false);
+  };
+  receiveMessage = (event) => {
+    if (event.data == "hit") {
+      this.audioManager.playSingleAudio("hit", 1);
+    } else if (event.data == "tetris") {
+      this.audioManager.playSingleAudio("tetris", 1);
+    } else if (event.data == "die") {
+      this.audioManager.playSingleAudio("die", 1);
+    } else if (event.data == "select1") {
+      this.audioManager.playSingleAudio("select1", 1);
+    } else if (event.data == "select2") {
+      this.audioManager.playSingleAudio("select2", 1);
+    }
   };
 }

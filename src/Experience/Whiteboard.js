@@ -1,7 +1,6 @@
 import {
   Group,
   Vector2,
-  SRGBColorSpace,
   MeshBasicMaterial,
   PlaneGeometry,
   Mesh,
@@ -19,6 +18,7 @@ export default class Whiteboard {
     this.scene = this.experience.scene;
     this.renderer = this.experience.renderer.instance;
     this.camera = this.experience.camera;
+    this.audioManager = this.experience.world.audioManager;
     this.mouse = this.experience.mouse;
     this.baked = this.experience.world.baked;
     this.whiteboardGroup = new Group();
@@ -44,6 +44,12 @@ export default class Whiteboard {
         this.whiteboardButtons.forEach((btn) => {
           btn.classList.remove("whiteboard-selected");
         });
+
+        if (button.id != "eraser") {
+          this.audioManager.playSingleAudio("markerOpen", 0.8);
+        } else {
+          this.audioManager.playSingleAudio("eraser", 0.3);
+        }
         button.classList.add("whiteboard-selected");
       });
     });

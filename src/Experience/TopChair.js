@@ -9,6 +9,7 @@ export default class TopChair {
     this.time = this.experience.time;
     this.materialTopChair = this.experience.world.baked.model.material2;
     this.setModel();
+    this.startAnimation();
   }
 
   setModel() {
@@ -25,7 +26,17 @@ export default class TopChair {
     });
   }
 
+  startAnimation() {
+    this.startTime = Date.now();
+    this.update();
+  }
+  
   update() {
-    this.model.group.rotation.y = Math.sin(this.time.elapsed * 0.0003) * 0.5;
+    if (!this.startTime) {
+      return;
+    }
+    const currentTime = Date.now();
+    const elapsedTime = currentTime - this.startTime;
+    this.model.group.rotation.y = Math.sin(elapsedTime * 0.0003) * 0.5;
   }
 }

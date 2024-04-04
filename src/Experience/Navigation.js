@@ -101,6 +101,8 @@ export default class Navigation {
         this.currentStage !== null &&
         this.currentStage !== "rubikGroup"
       ) {
+        const audioManager = this.experience.world.audioManager;
+        audioManager.playSingleAudio("whoosh", 0.2);
         this.orbitControls.enabled = false;
         this.moveCamera(
           CAMERA_POSITION.x,
@@ -122,6 +124,8 @@ export default class Navigation {
     });
   }
   bringSceneBack = () => {
+    const audioManager = this.experience.world.audioManager;
+    audioManager.playSingleAudio("whoosh", 0.2);
     if (this.rubikMessage.classList.contains("show-rubik-message")) {
       this.rubikMessage.classList.remove("show-rubik-message");
     }
@@ -225,6 +229,8 @@ export default class Navigation {
   }
 
   flyToPosition = (key) => {
+    const audioManager = this.experience.world.audioManager;
+    audioManager.playSingleAudio("whoosh", 0.2);
     if (key !== "rubikGroup" && this.currentStage == "rubikGroup") {
       this.rubikMessage.classList.remove("show-rubik-message");
       this.bringSceneBack();

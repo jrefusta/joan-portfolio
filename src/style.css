@@ -167,49 +167,36 @@ body {
 
 .audio-button {
   transition: opacity 1s, visibility 1s, background-size 0.2s ease-in-out,
-    0.2s ease-in-out;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
-  background-size: 70%;
+    0.2s ease-in-out, background-image 1s ease-in-out;
+  position: absolute;
+  display: block;
+  bottom: 50px;
+  right: 50px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #0a3362;
+  text-align: center;
+  line-height: 100px;
+  text-decoration: none;
+  font-size: 16px;
+  opacity: 0;
+  visibility: hidden;
+  cursor: pointer;
+  transition: opacity 1s, visibility 1s, background-size 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  z-index: 2;
+  background-image: url("../static/assets/svg/audio-volume-high.svg");
+  background-size: 50%;
   background-position: center;
   background-repeat: no-repeat;
-  width: 2.5vw;
-  aspect-ratio: 1;
-  text-align: center;
-  user-select: none;
-  justify-content: center;
-  cursor: pointer;
-  margin: 0 1vw;
-  position: relative;
 }
 
-.audio-button .slider {
-  position: absolute;
-  top: 100%;
-  transform: translateX(-50%);
-  width: 200px;
-  height: 200px;
-  background-color: #ccc;
-  border: 1px solid #aaa;
-  display: none;
+.audio-button:hover {
+  opacity: 1;
 }
-
-.audio-button:hover .slider {
-  display: block;
-}
-
-.audio-slider {
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100px;
-  height: 200px;
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 5px;
-  display: none;
-}
-
-.audio-button:hover .audio-slider {
-  display: block;
+.audio-button-muted {
+  background-image: url("../static/assets/svg/audio-volume-muted.svg");
 }
 
 .circular-button-whiteboard:hover {
@@ -236,18 +223,31 @@ body {
   transform: translate(-50%, -50%);
   display: flex;
   text-align: center;
-  font-size: 1.5vw;
+  font-size: 2em;
   position: absolute;
   top: 50%;
   left: 50%;
   z-index: 1;
   box-shadow: 0 2px 1px rgba(0, 0, 0, 1);
-  transition: all 1s ease;
+  transition: visibility 1s ease, opacity 1s ease, color 1s ease,
+    font-size 0.5s ease;
+}
+
+.loading-screen-hover:hover {
+  font-size: 2.5em;
+}
+
+.finished-load {
+  color: #0a3362 !important;
 }
 
 .show-loading-screen {
   visibility: visible;
   opacity: 1;
+}
+.show-audio-button {
+  visibility: visible;
+  opacity: 0.4;
 }
 .mobile-text {
   display: none;

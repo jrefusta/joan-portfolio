@@ -9,7 +9,6 @@ import {
   Euler,
   DoubleSide,
 } from "three";
-
 import Experience from "./Experience.js";
 import {
   CONFETTI_AMOUNT,
@@ -24,6 +23,7 @@ export default class Confetti {
     this.infoParticles = [];
     this.dummy = new Object3D();
     this.hasExploded = false;
+    this.audioManager = this.experience.world.audioManager;
     this.setConfetti();
   }
 
@@ -56,6 +56,8 @@ export default class Confetti {
   }
 
   explode() {
+    this.audioManager.playSingleAudio("confetti", 0.5);
+    this.audioManager.playSingleAudio("partyblower", 0.3);
     this.particles.visible = true;
     this.hasExploded = true;
     setTimeout(() => {

@@ -31,6 +31,7 @@ export default class LeftMonitorScreen {
     this.materialLeftMonitor = this.experience.world.baked.model.material2;
     this.isActive = false;
     this.camera = this.experience.camera;
+    this.audioManager = this.experience.world.audioManager;
     this.objectRaycasted = null;
     this.screenMonitorSize = new Vector2(
       MONITOR_SCREEN_WIDTH,
@@ -113,7 +114,13 @@ export default class LeftMonitorScreen {
   }
 
   receiveMessage = (event) => {
-    this.navigation.flyToPosition("rightMonitor");
+    if (event.data == "Projects") {
+      this.navigation.flyToPosition("rightMonitor");
+    } else if (event.data == "mousedown") {
+      this.audioManager.playSingleAudio("mouseclick", 1);
+    } else if (event.data == "mouseup") {
+      this.audioManager.playSingleAudio("mouserelease", 1);
+    }
   };
 
   onMouseMove = () => {

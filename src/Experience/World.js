@@ -1,4 +1,3 @@
-import * as THREE from "three";
 import Experience from "./Experience.js";
 import Baked from "./Baked.js";
 import CoffeeSteam from "./CoffeeSteam.js";
@@ -11,6 +10,7 @@ import RightMonitorScreen from "./RightMonitorScreen.js";
 import RubiksCube from "./RubiksCube.js";
 import Skybox from "./Skybox.js";
 import Confetti from "./Confetti.js";
+import AudioManager from "./AudioManager.js";
 
 import { RUBIK_POSITION, RUBIK_SCALE } from "./constants.js";
 
@@ -23,6 +23,7 @@ export default class World {
 
     this.resources.on("groupEnd", (_group) => {
       if (_group.name === "base") {
+        this.setAudioManager();
         this.setBaked();
         this.setWhiteboard();
         this.setCarpet();
@@ -80,6 +81,9 @@ export default class World {
 
   setRightMonitorScreen() {
     this.rightMonitorScreen = new RightMonitorScreen();
+  }
+  setAudioManager() {
+    this.audioManager = new AudioManager();
   }
 
   resize() {}

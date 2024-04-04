@@ -41,6 +41,7 @@ class RubiksCube {
     this.duration = 0.0;
     this.isPlaced = true;
     this.raycaster = this.experience.raycaster;
+    this.audioManager = this.experience.world.audioManager;
     this.setRubiksCube();
   }
 
@@ -608,6 +609,10 @@ class RubiksCube {
 
   startNextMove() {
     if (this.movementsStack.length) {
+      if (this.duration != 0) {
+        const randNum = Math.floor(Math.random() * 3) + 1;
+        this.audioManager.playSingleAudio("rubik_" + randNum, 0.5);
+      }
       if (!this.isMoving) {
         this.currentMove = this.movementsStack.shift();
         this.rotateCube(
