@@ -230,7 +230,6 @@ export default class Navigation {
 
   flyToPosition = (key) => {
     const audioManager = this.experience.world.audioManager;
-    audioManager.playSingleAudio("whoosh", 0.2);
     if (key !== "rubikGroup" && this.currentStage == "rubikGroup") {
       this.rubikMessage.classList.remove("show-rubik-message");
       this.bringSceneBack();
@@ -246,6 +245,7 @@ export default class Navigation {
     }
     switch (key) {
       case "arcadeMachine":
+        audioManager.playSingleAudio("whoosh", 0.2);
         this.backButton.classList.add("show-back-button");
         this.cameraIsMoving = true;
         this.orbitControls.enabled = false;
@@ -272,6 +272,7 @@ export default class Navigation {
         this.clickOnActivity();
         break;
       case "leftMonitor":
+        audioManager.playSingleAudio("whoosh", 0.2);
         this.backButton.classList.add("show-back-button");
         this.cameraIsMoving = true;
         this.orbitControls.enabled = false;
@@ -298,6 +299,7 @@ export default class Navigation {
         this.clickOnActivity();
         break;
       case "rightMonitor":
+        audioManager.playSingleAudio("whoosh", 0.2);
         this.backButton.classList.add("show-back-button");
         this.cameraIsMoving = true;
         this.orbitControls.enabled = false;
@@ -325,6 +327,7 @@ export default class Navigation {
         this.clickOnActivity();
         break;
       case "whiteboard":
+        audioManager.playSingleAudio("whoosh", 0.2);
         this.backButton.classList.add("show-back-button");
         this.whiteboardButons.classList.add("show-button-row");
         this.cameraIsMoving = true;
@@ -352,6 +355,7 @@ export default class Navigation {
         this.clickOnActivity();
         break;
       case "rubikGroup":
+        audioManager.playSingleAudio("whoosh", 0.2);
         this.rubikMessage.classList.add("show-rubik-message");
         this.backButton.classList.add("show-back-button");
         this.orbitControls.enabled = false;
