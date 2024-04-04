@@ -85,6 +85,7 @@ export default [
       { name: "whoosh", source: "assets/sounds/whoosh.mp3" },
       { name: "select1", source: "assets/sounds/select1.ogg" },
       { name: "select2", source: "assets/sounds/select2.ogg" },
+      { name: "screnshot", source: "assets/social/screenshot.png" },
     ],
   },
 ];
