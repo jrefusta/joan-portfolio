@@ -101,15 +101,13 @@ export default class LeftMonitorScreen {
   activateControls() {
     window.addEventListener("pointermove", this.onMouseMove, false);
     window.addEventListener("message", this.receiveMessage, false);
-    this.cssLeftMonitor.style.pointerEvents = "auto";
+    this.onMouseMove();
     this.isActive = true;
   }
 
   deactivateControls() {
     window.removeEventListener("pointermove", this.onMouseMove, false);
     window.removeEventListener("message", this.receiveMessage, false);
-    this.cssLeftMonitor.style.pointerEvents = "none";
-
     this.isActive = false;
   }
 
@@ -129,9 +127,11 @@ export default class LeftMonitorScreen {
       this.objectRaycasted.object &&
       this.objectRaycasted.object.name == "leftMonitorScreen"
     ) {
+      this.experience.navigation.orbitControls.enableDamping = false;
       this.experience.navigation.orbitControls.enabled = false;
       this.webglElement.style.pointerEvents = "none";
     } else {
+      this.experience.navigation.orbitControls.enableDamping = true;
       this.experience.navigation.orbitControls.enabled = true;
       this.webglElement.style.pointerEvents = "auto";
     }

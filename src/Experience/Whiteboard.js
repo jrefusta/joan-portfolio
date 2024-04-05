@@ -174,9 +174,11 @@ export default class Whiteboard {
       this.objectRaycasted.object &&
       this.objectRaycasted.object.name == "whiteboardCanvas"
     ) {
+      this.experience.navigation.orbitControls.enableDamping = false;
       this.experience.navigation.orbitControls.enabled = false;
       this.webglElement.style.pointerEvents = "none";
     } else {
+      this.experience.navigation.orbitControls.enableDamping = true;
       this.experience.navigation.orbitControls.enabled = true;
       this.webglElement.style.pointerEvents = "auto";
     }
@@ -205,6 +207,7 @@ export default class Whiteboard {
     window.addEventListener("pointerdown", this.onMouseDown, false);
     window.addEventListener("pointermove", this.throttledMouseMove, false);
     window.addEventListener("pointerup", this.onMouseUp, false);
+    this.onMouseMove();
     this.isActive = true;
   }
 

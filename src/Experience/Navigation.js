@@ -39,7 +39,6 @@ export default class Navigation {
     this.config = this.experience.config;
     this.scene = this.experience.scene;
     this.mouse = this.experience.mouse;
-    this.cameraIsMoving = false;
     this.currentStage = null;
     this.outlinePass = this.experience.renderer.postProcess.outlinePass;
     this.raycaster = this.experience.raycaster;
@@ -97,13 +96,18 @@ export default class Navigation {
       ) {
         this.bringSceneBack();
         this.experience.world.rubiksCube.resetOriginalConfig();
+        this.activateScene();
       } else if (
         this.currentStage !== null &&
         this.currentStage !== "rubikGroup"
       ) {
+        if (this.whiteboardButons.classList.contains("show-button-row")) {
+          this.whiteboardButons.classList.remove("show-button-row");
+        }
+        this.orbitControls.enableDamping = false;
+        this.orbitControls.enabled = false;
         const audioManager = this.experience.world.audioManager;
         audioManager.playSingleAudio("whoosh", 0.2);
-        this.orbitControls.enabled = false;
         this.moveCamera(
           CAMERA_POSITION.x,
           CAMERA_POSITION.y,
@@ -123,12 +127,19 @@ export default class Navigation {
       }
     });
   }
+
+  rubikWon = () => {
+    this.bringSceneBack();
+    this.activateScene();
+  };
+
   bringSceneBack = () => {
     const audioManager = this.experience.world.audioManager;
     audioManager.playSingleAudio("whoosh", 0.2);
     if (this.rubikMessage.classList.contains("show-rubik-message")) {
       this.rubikMessage.classList.remove("show-rubik-message");
     }
+    this.orbitControls.enableDamping = false;
     this.orbitControls.enabled = false;
     this.expandScene(this.experience.scene, this.sceneResult);
     this.expandScene(
@@ -234,6 +245,7 @@ export default class Navigation {
       this.rubikMessage.classList.remove("show-rubik-message");
       this.bringSceneBack();
       this.experience.world.rubiksCube.resetOriginalConfig();
+      this.activateScene();
     }
     if (key != "whiteboard") {
       if (this.whiteboardButons.classList.contains("show-button-row")) {
@@ -247,7 +259,7 @@ export default class Navigation {
       case "arcadeMachine":
         audioManager.playSingleAudio("whoosh", 0.2);
         this.backButton.classList.add("show-back-button");
-        this.cameraIsMoving = true;
+        this.orbitControls.enableDamping = false;
         this.orbitControls.enabled = false;
         this.moveCamera(
           ARCADE_MACHINE_CAMERA_POSITION.x,
@@ -274,7 +286,7 @@ export default class Navigation {
       case "leftMonitor":
         audioManager.playSingleAudio("whoosh", 0.2);
         this.backButton.classList.add("show-back-button");
-        this.cameraIsMoving = true;
+        this.orbitControls.enableDamping = false;
         this.orbitControls.enabled = false;
         this.moveCamera(
           LEFT_MONITOR_CAMERA_POSITION.x,
@@ -301,7 +313,7 @@ export default class Navigation {
       case "rightMonitor":
         audioManager.playSingleAudio("whoosh", 0.2);
         this.backButton.classList.add("show-back-button");
-        this.cameraIsMoving = true;
+        this.orbitControls.enableDamping = false;
         this.orbitControls.enabled = false;
 
         this.moveCamera(
@@ -330,7 +342,7 @@ export default class Navigation {
         audioManager.playSingleAudio("whoosh", 0.2);
         this.backButton.classList.add("show-back-button");
         this.whiteboardButons.classList.add("show-button-row");
-        this.cameraIsMoving = true;
+        this.orbitControls.enableDamping = false;
         this.orbitControls.enabled = false;
         this.moveCamera(
           WHITEBOARD_CAMERA_POSITION.x,
@@ -358,6 +370,7 @@ export default class Navigation {
         audioManager.playSingleAudio("whoosh", 0.2);
         this.rubikMessage.classList.add("show-rubik-message");
         this.backButton.classList.add("show-back-button");
+        this.orbitControls.enableDamping = false;
         this.orbitControls.enabled = false;
         this.experience.world.rubiksCube.reubicateCube();
         this.sceneResult = this.shrinkScene(this.experience.scene);
@@ -412,6 +425,7 @@ export default class Navigation {
         this.flyToPosition(this.objectRaycasted);
       }
     }
+    this.startClick.set(null, null);
   };
 
   moveCamera(x, y, z, duration) {
@@ -434,7 +448,8 @@ export default class Navigation {
       ease: "sine.out",
       onComplete: () => {
         this.currentStage = stage;
-        if (this.currentStage !== "rubikGroup") {
+        if (this.currentStage === null) {
+          this.orbitControls.enableDamping = true;
           this.orbitControls.enabled = true;
         }
         this.isCameraMoving = false;
@@ -506,6 +521,7 @@ export default class Navigation {
             duration: 1,
             ease: "sine.out",
             onComplete: () => {
+              this.orbitControls.enableDamping = true;
               this.orbitControls.enabled = true;
             },
           });
@@ -524,7 +540,7 @@ export default class Navigation {
   }
 
   handleChangeEvent = () => {
-    if (this.currentStage != null) {
+    if (this.currentStage != null && this.orbitControls.enabled) {
       if (
         !this.isCameraMoving &&
         this.whiteboardButons.classList.contains("show-button-row")
@@ -537,12 +553,16 @@ export default class Navigation {
       ) {
         this.backButton.classList.remove("show-back-button");
       }
-      this.deactivateActivityControls();
-      this.currentStage = null;
-      this.activateControls();
+      this.activateScene();
       this.orbitControls.removeEventListener("change", this.handleChangeEvent);
     }
   };
+
+  activateScene() {
+    this.deactivateActivityControls();
+    this.currentStage = null;
+    this.activateControls();
+  }
 
   deactivateActivityControls = () => {
     switch (this.currentStage) {

@@ -143,9 +143,11 @@ export default class ArcadeScreen {
       this.objectRaycasted.object &&
       this.objectRaycasted.object.name == "arcadeMachine"
     ) {
+      this.experience.navigation.orbitControls.enableDamping = false;
       this.experience.navigation.orbitControls.enabled = false;
       this.webglElement.style.pointerEvents = "none";
     } else {
+      this.experience.navigation.orbitControls.enableDamping = true;
       this.experience.navigation.orbitControls.enabled = true;
       this.webglElement.style.pointerEvents = "auto";
     }
@@ -156,6 +158,7 @@ export default class ArcadeScreen {
     window.addEventListener("keyup", this.handleKeyUpParent);
     window.addEventListener("pointermove", this.onMouseMove);
     window.addEventListener("message", this.receiveMessage, false);
+    this.onMouseMove();
   };
   deactivateControls = () => {
     window.removeEventListener("keydown", this.handleKeyDownParent);

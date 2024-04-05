@@ -470,7 +470,7 @@ class RubiksCube {
     );
 
     if (isSolution && !this.hasBeenSolved) {
-      this.experience.navigation.bringSceneBack();
+      this.experience.navigation.rubikWon();
       this.winAnimation();
       this.hasBeenSolved = true;
     }

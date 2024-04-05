@@ -99,6 +99,7 @@ export default class RightMonitorScreen {
   activateControls() {
     window.addEventListener("pointermove", this.onMouseMove, false);
     window.addEventListener("message", this.receiveMessage, false);
+    this.onMouseMove();
     this.isActive = true;
   }
   deactivateControls() {
@@ -127,15 +128,18 @@ export default class RightMonitorScreen {
     }
   };
   onMouseMove = () => {
+    console.log("mousemove right");
     if (
       this.objectRaycasted &&
       this.objectRaycasted.object &&
       this.objectRaycasted.object.name == "rightMonitorScreen"
     ) {
+      this.experience.navigation.orbitControls.enableDamping = false;
       this.experience.navigation.orbitControls.enabled = false;
       this.webglElement.style.pointerEvents = "none";
     } else {
       this.experience.navigation.orbitControls.enabled = true;
+      this.experience.navigation.orbitControls.enableDamping = true;
       this.webglElement.style.pointerEvents = "auto";
     }
   };
