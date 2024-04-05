@@ -128,7 +128,6 @@ export default class RightMonitorScreen {
     }
   };
   onMouseMove = () => {
-    console.log("mousemove right");
     if (
       this.objectRaycasted &&
       this.objectRaycasted.object &&
