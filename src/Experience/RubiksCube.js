@@ -445,29 +445,42 @@ class RubiksCube {
     this.checkIfCubeIsSolved(this.allCubies);
   }
 
-  checkCubieEquality(obj1, obj2) {
-    return (
-      obj1.col === obj2.col &&
-      obj1.depth === obj2.depth &&
-      obj1.row === obj2.row &&
-      this.checkCubieColorEquality(obj1.colors, obj2.colors)
-    );
-  }
-
-  // Función para comparar dos objetos de la propiedad 'colors'
-  checkCubieColorEquality(colors1, colors2) {
-    for (const key in colors1) {
-      if (colors1[key] !== colors2[key]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   checkIfCubeIsSolved(allCubies) {
-    const isSolution = allCubies.every((element, index) =>
-      this.checkCubieEquality(element, cubeInfo[index])
-    );
+    let isSolution = true;
+    const allFaces = { U: null, D: null, L: null, R: null, F: null, B: null };
+
+    allCubies.forEach((cubie) => {
+      const { colors, depth, row, col } = cubie;
+
+      switch (true) {
+        case depth === 1:
+          if (allFaces.F === null) allFaces.F = colors.F;
+          else if (allFaces.F !== colors.F) isSolution = false;
+          break;
+        case depth === 3:
+          if (allFaces.B === null) allFaces.B = colors.B;
+          else if (allFaces.B !== colors.B) isSolution = false;
+          break;
+        case row === 1:
+          if (allFaces.U === null) allFaces.U = colors.U;
+          else if (allFaces.U !== colors.U) isSolution = false;
+          break;
+        case row === 3:
+          if (allFaces.D === null) allFaces.D = colors.D;
+          else if (allFaces.D !== colors.D) isSolution = false;
+          break;
+        case col === 1:
+          if (allFaces.L === null) allFaces.L = colors.L;
+          else if (allFaces.L !== colors.L) isSolution = false;
+          break;
+        case col === 3:
+          if (allFaces.R === null) allFaces.R = colors.R;
+          else if (allFaces.R !== colors.R) isSolution = false;
+          break;
+      }
+
+      if (!isSolution) return; // Break out of the loop early if we already know it's not a solution
+    });
 
     if (isSolution && !this.hasBeenSolved) {
       this.experience.navigation.rubikWon();
@@ -551,7 +564,7 @@ class RubiksCube {
             "F",
             "U",
             "B",
-            "R",
+            "D",
           ]);
         }
         break;
