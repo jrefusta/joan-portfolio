@@ -450,38 +450,67 @@ class RubiksCube {
     const allFaces = { U: null, D: null, L: null, R: null, F: null, B: null };
 
     allCubies.forEach((cubie) => {
-      const { colors, depth, row, col } = cubie;
-
-      switch (true) {
-        case depth === 1:
-          if (allFaces.F === null) allFaces.F = colors.F;
-          else if (allFaces.F !== colors.F) isSolution = false;
-          break;
-        case depth === 3:
-          if (allFaces.B === null) allFaces.B = colors.B;
-          else if (allFaces.B !== colors.B) isSolution = false;
-          break;
-        case row === 1:
-          if (allFaces.U === null) allFaces.U = colors.U;
-          else if (allFaces.U !== colors.U) isSolution = false;
-          break;
-        case row === 3:
-          if (allFaces.D === null) allFaces.D = colors.D;
-          else if (allFaces.D !== colors.D) isSolution = false;
-          break;
-        case col === 1:
-          if (allFaces.L === null) allFaces.L = colors.L;
-          else if (allFaces.L !== colors.L) isSolution = false;
-          break;
-        case col === 3:
-          if (allFaces.R === null) allFaces.R = colors.R;
-          else if (allFaces.R !== colors.R) isSolution = false;
-          break;
+      if (cubie.depth == 1) {
+        if (allFaces.F == null) {
+          allFaces.F = cubie.colors.F;
+        } else {
+          if (allFaces.F !== cubie.colors.F) {
+            isSolution = false;
+            return;
+          }
+        }
       }
-
-      if (!isSolution) return; // Break out of the loop early if we already know it's not a solution
+      if (cubie.depth == 3) {
+        if (allFaces.B == null) {
+          allFaces.B = cubie.colors.B;
+        } else {
+          if (allFaces.B !== cubie.colors.B) {
+            isSolution = false;
+            return;
+          }
+        }
+      }
+      if (cubie.row == 1) {
+        if (allFaces.U == null) {
+          allFaces.U = cubie.colors.U;
+        } else {
+          if (allFaces.U !== cubie.colors.U) {
+            isSolution = false;
+            return;
+          }
+        }
+      }
+      if (cubie.row == 3) {
+        if (allFaces.D == null) {
+          allFaces.D = cubie.colors.D;
+        } else {
+          if (allFaces.D !== cubie.colors.D) {
+            isSolution = false;
+            return;
+          }
+        }
+      }
+      if (cubie.col == 1) {
+        if (allFaces.L == null) {
+          allFaces.L = cubie.colors.L;
+        } else {
+          if (allFaces.L !== cubie.colors.L) {
+            isSolution = false;
+            return;
+          }
+        }
+      }
+      if (cubie.col == 3) {
+        if (allFaces.R == null) {
+          allFaces.R = cubie.colors.R;
+        } else {
+          if (allFaces.R !== cubie.colors.R) {
+            isSolution = false;
+            return;
+          }
+        }
+      }
     });
-
     if (isSolution && !this.hasBeenSolved) {
       this.experience.navigation.rubikWon();
       this.winAnimation();
