@@ -23,6 +23,17 @@ import {
   ARCADE_IFRAME_PADDING,
 } from "./constants.js";
 
+const ARCADE_ORIGIN = new URL(ARCADE_IFRAME_SRC).origin;
+const ARCADE_KEYS = new Set([
+  "ArrowUp",
+  "ArrowDown",
+  "ArrowLeft",
+  "ArrowRight",
+  " ",
+  "Enter",
+  "Escape",
+]);
+
 export default class ArcadeScreen {
   constructor() {
     this.experience = new Experience();
@@ -60,6 +71,9 @@ export default class ArcadeScreen {
     const iframe = document.createElement("iframe");
 
     iframe.src = ARCADE_IFRAME_SRC;
+    iframe.referrerPolicy = "origin";
+    iframe.sandbox.value = "allow-scripts allow-same-origin";
+    this.iframe = iframe;
     iframe.style.width = this.screenSize.width + "px";
     iframe.style.height = this.screenSize.height + "px";
     iframe.style.padding = ARCADE_IFRAME_PADDING;
@@ -69,9 +83,6 @@ export default class ArcadeScreen {
     iframe.style.boxSizing = "border-box";
     iframe.style.background = "black";
     container.appendChild(iframe);
-    iframe.addEventListener("load", () => {
-      this.iframeWindow = iframe.contentWindow;
-    });
 
     const css3dobject = new CSS3DObject(container);
 
@@ -127,15 +138,18 @@ export default class ArcadeScreen {
   };
 
   handleKeyDownParent = (event) => {
-    this.iframeWindow.postMessage(
-      { type: "keyDownParent", key: event.key },
-      "*"
-    );
+    this.sendKey("keyDownParent", event.key);
   };
 
   handleKeyUpParent = (event) => {
-    this.iframeWindow.postMessage({ type: "keyUpParent", key: event.key }, "*");
+    this.sendKey("keyUpParent", event.key);
   };
+
+  sendKey(type, key) {
+    if (ARCADE_KEYS.has(key)) {
+      this.iframe.contentWindow?.postMessage({ type, key }, ARCADE_ORIGIN);
+    }
+  }
 
   onMouseMove = () => {
     if (
@@ -167,6 +181,14 @@ export default class ArcadeScreen {
     window.removeEventListener("message", this.receiveMessage, false);
   };
   receiveMessage = (event) => {
+    if (
+      event.origin !== ARCADE_ORIGIN ||
+      event.source !== this.iframe.contentWindow ||
+      typeof event.data !== "string"
+    ) {
+      return;
+    }
+
     if (event.data == "hit") {
       this.audioManager.playSingleAudio("hit", 1);
     } else if (event.data == "tetris") {

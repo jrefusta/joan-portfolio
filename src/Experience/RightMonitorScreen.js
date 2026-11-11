@@ -58,6 +58,9 @@ export default class RightMonitorScreen {
     const iframe = document.createElement("iframe");
 
     iframe.src = RIGHT_MONITOR_IFRAME_SRC;
+    iframe.referrerPolicy = "origin";
+    iframe.sandbox.value = "allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-popups-to-escape-sandbox";
+    this.iframe = iframe;
     iframe.style.width = this.screenMonitorSize.width + "px";
     iframe.style.height = this.screenMonitorSize.height + "px";
     iframe.style.padding = MONITOR_IFRAME_PADDING;
@@ -109,6 +112,14 @@ export default class RightMonitorScreen {
   }
 
   receiveMessage = (event) => {
+    if (
+      event.origin !== new URL(RIGHT_MONITOR_IFRAME_SRC).origin ||
+      event.source !== this.iframe.contentWindow ||
+      typeof event.data !== "string"
+    ) {
+      return;
+    }
+
     if (event.data == "footstep01") {
       this.audioManager.playSingleAudio("footstep01", 0.3);
     } else if (event.data == "footstep02") {

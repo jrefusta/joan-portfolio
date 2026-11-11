@@ -62,6 +62,9 @@ export default class LeftMonitorScreen {
     const iframe = document.createElement("iframe");
 
     iframe.src = LEFT_MONITOR_IFRAME_SRC;
+    iframe.referrerPolicy = "origin";
+    iframe.sandbox.value = "allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox";
+    this.iframe = iframe;
     iframe.style.width = this.screenMonitorSize.width + "px";
     iframe.style.height = this.screenMonitorSize.height + "px";
     iframe.style.padding = MONITOR_IFRAME_PADDING;
@@ -112,6 +115,14 @@ export default class LeftMonitorScreen {
   }
 
   receiveMessage = (event) => {
+    if (
+      event.origin !== new URL(LEFT_MONITOR_IFRAME_SRC).origin ||
+      event.source !== this.iframe.contentWindow ||
+      typeof event.data !== "string"
+    ) {
+      return;
+    }
+
     if (event.data == "Projects") {
       this.navigation.flyToPosition("rightMonitor");
     } else if (event.data == "mousedown") {

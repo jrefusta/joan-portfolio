@@ -401,13 +401,13 @@ export default class Navigation {
         this.clickOnActivity();
         break;
       case "linkedin":
-        window.open(LINKEDIN_URL);
+        window.open(LINKEDIN_URL, "_blank", "noopener");
         break;
       case "github":
-        window.open(GITHUB_URL);
+        window.open(GITHUB_URL, "_blank", "noopener");
         break;
       case "itchio":
-        window.open(ITCHIO_URL);
+        window.open(ITCHIO_URL, "_blank", "noopener");
         break;
     }
   };
