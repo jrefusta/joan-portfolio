@@ -21,12 +21,11 @@ You can now explore it [here](https://joanramosrefusta.com/).
 
 ## Setup
 
-Download [Node.js](https://nodejs.org/en/download/).
-Run this followed commands:
+Use [Node.js](https://nodejs.org/en/download/) 22.15 or newer.
 
 ``` bash
-# Install dependencies (only the first time)
-npm install
+# Install the versions from package-lock.json
+npm ci
 
 # Run the local server at localhost:8080
 npm run dev
@@ -34,6 +33,9 @@ npm run dev
 # Build for production in the dist/ directory
 npm run build
 ```
+
+For a manual deployment with `npm run deploy`, install and authenticate the
+Vercel CLI separately. The build and dev server do not need it.
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
